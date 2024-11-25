@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "/pruu")
+@RequestMapping(path = "/pruus")
 @CrossOrigin(origins = {"http://localhost:4200"}, maxAge = 3600)
 public class PruuController {
 
@@ -45,7 +45,6 @@ public class PruuController {
     }
 
     @Operation(summary = "Listar todos os pruus", description = "Retorna uma lista de todos os pruus cadastrados no sistema.", responses = {@ApiResponse(responseCode = "200", description = "Lista de pruus retornada com sucesso")})
-
     @GetMapping(path = "/todos")
     public List<Pruu> pesquisarTodos(@RequestBody PruuSeletor paginacao) {
         return pruuService.pesquisarTodos(paginacao);
