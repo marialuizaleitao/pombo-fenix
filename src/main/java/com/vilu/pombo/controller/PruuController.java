@@ -1,6 +1,6 @@
 package com.vilu.pombo.controller;
 
-import com.vilu.pombo.exeption.PomboException;
+import com.vilu.pombo.exception.PomboException;
 import com.vilu.pombo.model.entity.Pruu;
 import com.vilu.pombo.model.seletor.PruuSeletor;
 import com.vilu.pombo.service.PruuService;

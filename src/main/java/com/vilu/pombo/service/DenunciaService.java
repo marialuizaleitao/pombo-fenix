@@ -1,6 +1,6 @@
 package com.vilu.pombo.service;
 
-import com.vilu.pombo.exeption.PomboException;
+import com.vilu.pombo.exception.PomboException;
 import com.vilu.pombo.model.entity.Denuncia;
 import com.vilu.pombo.model.entity.Pruu;
 import com.vilu.pombo.model.entity.Usuario;

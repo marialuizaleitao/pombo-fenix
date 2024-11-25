@@ -1,6 +1,6 @@
 package com.vilu.pombo.controller;
 
-import com.vilu.pombo.exeption.PomboException;
+import com.vilu.pombo.exception.PomboException;
 import com.vilu.pombo.model.entity.Usuario;
 import com.vilu.pombo.model.seletor.UsuarioSeletor;
 import com.vilu.pombo.service.UsuarioService;

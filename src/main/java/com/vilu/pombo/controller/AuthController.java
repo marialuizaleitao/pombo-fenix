@@ -1,7 +1,7 @@
 package com.vilu.pombo.controller;
 
 import com.vilu.pombo.auth.AuthService;
-import com.vilu.pombo.exeption.PomboException;
+import com.vilu.pombo.exception.PomboException;
 import com.vilu.pombo.model.entity.Usuario;
 import com.vilu.pombo.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ public class AuthController {
      * @return o JWT gerado
      */
     @PostMapping("/login")
-    public String login(Authentication authentication) {
+    public String login(Authentication authentication) throws PomboException {
         return authenticationService.authenticate(authentication);
     }
 

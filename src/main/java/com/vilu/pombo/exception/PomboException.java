@@ -1,4 +1,4 @@
-package com.vilu.pombo.exeption;
+package com.vilu.pombo.exception;
 
 import org.springframework.http.HttpStatus;
 

@@ -1,6 +1,6 @@
 package com.vilu.pombo.auth;
 
-import com.vilu.pombo.exeption.PomboException;
+import com.vilu.pombo.exception.PomboException;
 import com.vilu.pombo.model.entity.Usuario;
 import com.vilu.pombo.model.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService {
     private final JwtService jwtService;
-
     @Autowired
     private UsuarioRepository usuarioRepository;
 
@@ -21,7 +20,7 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
-    public String authenticate(Authentication authentication) {
+    public String authenticate(Authentication authentication) throws PomboException {
         return jwtService.getGenerateToken(authentication);
     }
 
