@@ -45,8 +45,8 @@ public class PruuController {
     }
 
     @Operation(summary = "Listar todos os pruus", description = "Retorna uma lista de todos os pruus cadastrados no sistema.", responses = {@ApiResponse(responseCode = "200", description = "Lista de pruus retornada com sucesso")})
-    @GetMapping(path = "/todos")
-    public List<Pruu> pesquisarTodos(@RequestBody PruuSeletor paginacao) {
+    @PostMapping(path = "/todos")
+    public List<Pruu> pesquisarTodos(@RequestBody PruuSeletor paginacao) throws PomboException {
         return pruuService.pesquisarTodos(paginacao);
     }
 
