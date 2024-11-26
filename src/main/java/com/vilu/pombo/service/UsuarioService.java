@@ -27,11 +27,11 @@ public class UsuarioService implements UserDetailsService {
 
     public void cadastrar(Usuario usuario) throws PomboException {
         if (usuarioRepository.existsByEmailIgnoreCase(usuario.getEmail())) {
-            throw new PomboException("Já existe um usuário cadastrado com este e-mail.", HttpStatus.BAD_REQUEST);
+            throw new PomboException("O e-mail informado já está cadastrado. Por favor, utilize um e-mail diferente.", HttpStatus.BAD_REQUEST);
         }
 
         if (usuarioRepository.existsByCpf(usuario.getCpf())) {
-            throw new PomboException("Já existe um usuário cadastrado com este CPF.", HttpStatus.BAD_REQUEST);
+            throw new PomboException("O CPF informado já está registrado. Por favor, verifique os dados ou utilize outro CPF.", HttpStatus.BAD_REQUEST);
         }
 
         usuarioRepository.save(usuario);
@@ -48,7 +48,7 @@ public class UsuarioService implements UserDetailsService {
         if (usuario.getPruus().isEmpty() && usuario.getDenuncias().isEmpty()) {
             usuarioRepository.deleteById(id);
         } else {
-            throw new PomboException("Usuário com pruus postados ou denúncias criadas não podem ser deletados!", HttpStatus.BAD_REQUEST);
+            throw new PomboException("Usuários com pruus postados ou denúncias criadas não podem ser deletados.", HttpStatus.BAD_REQUEST);
         }
     }
 
