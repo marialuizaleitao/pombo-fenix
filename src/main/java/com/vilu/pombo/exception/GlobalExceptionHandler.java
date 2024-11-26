@@ -14,8 +14,13 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(PomboException.class)
-    public ResponseEntity<String> handlePomboException(PomboException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
+    public ResponseEntity<Map<String, Object>> handlePomboException(PomboException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", ex.getMessage());
+        response.put("status", HttpStatus.FORBIDDEN.value());
+        response.put("error", HttpStatus.FORBIDDEN.getReasonPhrase());
+
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -29,10 +34,5 @@ public class GlobalExceptionHandler {
         });
 
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<String> handleUnauthorizedException(UnauthorizedException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 }
