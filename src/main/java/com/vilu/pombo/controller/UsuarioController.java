@@ -43,18 +43,15 @@ public class UsuarioController {
     public ResponseEntity<Usuario> atualizar(@Valid @RequestBody Usuario usuarioASerAtualizado) throws PomboException {
         Usuario subject = authService.getUsuarioAutenticado();
 
-        if (!subject.getId().equals(usuarioASerAtualizado.getId())) {
-            throw new PomboException("Você não tem permissão para alterar este usuário.", HttpStatus.FORBIDDEN);
-        }
         usuarioASerAtualizado.setId(subject.getId());
 
         return ResponseEntity.ok(usuarioService.atualizar(usuarioASerAtualizado));
     }
 
     @Operation(summary = "Deletar usuário", description = "Exclui um usuário através do seu ID.", responses = {@ApiResponse(responseCode = "200", description = "Usuário excluído com sucesso"),})
-    @DeleteMapping(path = "/excluir/{id}")
-    public ResponseEntity<Void> excluir(@PathVariable String id) throws PomboException {
-        usuarioService.excluir(id);
+    @DeleteMapping(path = "/excluir/{idUsuario}")
+    public ResponseEntity<Void> excluir(@PathVariable String idUsuario) throws PomboException {
+        usuarioService.excluir(idUsuario);
         return ResponseEntity.noContent().build();
     }
 
@@ -65,9 +62,9 @@ public class UsuarioController {
     }
 
     @Operation(summary = "Pesquisar usuário por ID", description = "Busca um usuário específico através do seu ID.")
-    @GetMapping(path = "/{id}")
-    public ResponseEntity<Usuario> pesquisarPorId(@PathVariable String id) throws PomboException {
-        Usuario usuario = usuarioService.pesquisarPorId(id);
+    @GetMapping(path = "/{idUsuario}")
+    public ResponseEntity<Usuario> pesquisarPorId(@PathVariable String idUsuario) throws PomboException {
+        Usuario usuario = usuarioService.pesquisarPorId(idUsuario);
         return ResponseEntity.ok(usuario);
     }
 
