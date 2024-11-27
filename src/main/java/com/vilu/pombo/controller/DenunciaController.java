@@ -36,8 +36,8 @@ public class DenunciaController {
     }
 
     @Operation(summary = "Excluir denuncia", description = "Exclui a denuncia", responses = {@ApiResponse(responseCode = "200", description = "Denuncia excluida com sucesso"), @ApiResponse(responseCode = "400", description = "Denuncia não encontrada")})
-    @DeleteMapping("/excluir/{idDenuncia}")
-    public ResponseEntity<Void> excluir(@PathVariable String idDenuncia, @RequestBody String idUsuario) throws PomboException {
+    @DeleteMapping("/excluir/{idDenuncia}/{idUsuario}")
+    public ResponseEntity<Void> excluir(@PathVariable String idDenuncia, @PathVariable String idUsuario) throws PomboException {
         denunciaService.excluir(idDenuncia, idUsuario);
         return ResponseEntity.ok().build();
     }

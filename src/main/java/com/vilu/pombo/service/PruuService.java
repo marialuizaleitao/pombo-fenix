@@ -1,8 +1,10 @@
 package com.vilu.pombo.service;
 
+import com.vilu.pombo.auth.AuthService;
 import com.vilu.pombo.exception.PomboException;
 import com.vilu.pombo.model.entity.Pruu;
 import com.vilu.pombo.model.entity.Usuario;
+import com.vilu.pombo.model.enums.Perfil;
 import com.vilu.pombo.model.repository.PruuRepository;
 import com.vilu.pombo.model.repository.UsuarioRepository;
 import com.vilu.pombo.model.seletor.PruuSeletor;
@@ -10,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,6 +28,9 @@ public class PruuService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+    
+    @Autowired
+    private AuthService authService;
 
     public Pruu cadastrar(Pruu pruu) throws PomboException {
         Optional<Usuario> autor = usuarioRepository.findById(pruu.getUsuario().getId());
@@ -32,9 +38,12 @@ public class PruuService {
         return pruuRepository.save(pruu);
     }
 
-    public void toggleCurtida(String idPruu, String idUsuario) throws PomboException {
+    public void toggleCurtida(String idPruu) throws PomboException {
+    	Usuario subject = authService.getUsuarioAutenticado();
+
+        
         Pruu pruu = pruuRepository.findById(idPruu).orElseThrow(() -> new PomboException("O pruu selecionado não foi encontrado.", HttpStatus.BAD_REQUEST));
-        Usuario usuario = usuarioRepository.findById(idUsuario).orElseThrow(() -> new PomboException("Usuário não encontrado.", HttpStatus.BAD_REQUEST));
+        Usuario usuario = usuarioRepository.findById(subject.getId()).orElseThrow(() -> new PomboException("Usuário não encontrado.", HttpStatus.BAD_REQUEST));
 
         List<Usuario> usuariosQueCurtiram = pruu.getUsuariosQueCurtiram();
 
