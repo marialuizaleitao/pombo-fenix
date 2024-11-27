@@ -1,6 +1,7 @@
 package com.vilu.pombo.service;
 
 import com.vilu.pombo.exception.PomboException;
+import com.vilu.pombo.model.dto.DenunciaDTO;
 import com.vilu.pombo.model.entity.Denuncia;
 import com.vilu.pombo.model.entity.Pruu;
 import com.vilu.pombo.model.entity.Usuario;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -33,10 +35,8 @@ public class DenunciaService {
             throw new PomboException("Motivo de denúncia inválido.", HttpStatus.BAD_REQUEST);
         }
 
-        Pruu pruuDenunciado = pruuRepository.findById(denuncia.getPruu().getId())
-                .orElseThrow(() -> new PomboException("Pruu não encontrado.", HttpStatus.BAD_REQUEST));
-        Usuario autorDaDenuncia = usuarioRepository.findById(denuncia.getUsuario().getId())
-                .orElseThrow(() -> new PomboException("Usuário não encontrado.", HttpStatus.BAD_REQUEST));
+        Pruu pruuDenunciado = pruuRepository.findById(denuncia.getPruu().getId()).orElseThrow(() -> new PomboException("Pruu não encontrado.", HttpStatus.BAD_REQUEST));
+        Usuario autorDaDenuncia = usuarioRepository.findById(denuncia.getUsuario().getId()).orElseThrow(() -> new PomboException("Usuário não encontrado.", HttpStatus.BAD_REQUEST));
 
         denuncia.setPruu(pruuDenunciado);
         denuncia.setUsuario(autorDaDenuncia);
@@ -64,20 +64,30 @@ public class DenunciaService {
         }
     }
 
-    public Denuncia pesquisarPorId(String idDenuncia) throws PomboException {
-        return denunciaRepository.findById(idDenuncia).orElseThrow(() -> new PomboException("A denúncia buscada não foi encontrada.", HttpStatus.BAD_REQUEST));
+    public List<DenunciaDTO> pesquisarTodas() {
+        List<Denuncia> denuncias =  denunciaRepository.findAll();
+        return toDenunciaDTO(denuncias);
     }
 
-    public List<Denuncia> pesquisarComFiltros(DenunciaSeletor seletor) {
+    public DenunciaDTO pesquisarPorId(String idDenuncia) throws PomboException {
+        Denuncia denuncia = denunciaRepository.findById(idDenuncia).orElseThrow(() -> new PomboException("A denúncia buscada não foi encontrada.", HttpStatus.BAD_REQUEST));
+        return Denuncia.toDTO(denuncia);
+    }
+
+    public List<DenunciaDTO> pesquisarComFiltros(DenunciaSeletor seletor) {
+        List<Denuncia> denuncias;
+
         if (seletor.temPaginacao()) {
             int pageNumber = seletor.getPagina();
             int pageSize = seletor.getLimite();
 
             PageRequest page = PageRequest.of(pageNumber - 1, pageSize);
-            return denunciaRepository.findAll(seletor, page).toList();
+            denuncias = denunciaRepository.findAll(seletor, page).toList();
         }
 
-        return denunciaRepository.findAll(seletor);
+        denuncias = denunciaRepository.findAll(seletor);
+
+        return toDenunciaDTO(denuncias);
     }
 
     private void atualizarStatusPruu(Pruu pruu, StatusDenuncia statusAtual, StatusDenuncia novoStatus) {
@@ -88,6 +98,17 @@ public class DenunciaService {
         }
 
         pruuRepository.save(pruu);
+    }
+
+    public List<DenunciaDTO> toDenunciaDTO(List<Denuncia> denuncias) {
+        List<DenunciaDTO> denunciasDTO = new ArrayList<>();
+
+        for (Denuncia d : denuncias) {
+            DenunciaDTO dto = Denuncia.toDTO(d);
+            denunciasDTO.add(dto);
+
+        }
+        return denunciasDTO;
     }
 
 }

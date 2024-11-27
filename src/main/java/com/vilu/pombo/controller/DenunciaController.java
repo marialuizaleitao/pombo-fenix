@@ -1,6 +1,7 @@
 package com.vilu.pombo.controller;
 
 import com.vilu.pombo.exception.PomboException;
+import com.vilu.pombo.model.dto.DenunciaDTO;
 import com.vilu.pombo.model.entity.Denuncia;
 import com.vilu.pombo.model.enums.StatusDenuncia;
 import com.vilu.pombo.model.seletor.DenunciaSeletor;
@@ -42,16 +43,22 @@ public class DenunciaController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "Pesquisar todas as denúncias", description = "Retorna uma lista com todas as denúncias cadastradas.", responses = {@ApiResponse(responseCode = "200", description = "Denuncias retornadas com sucesso."), @ApiResponse(responseCode = "400", description = "Denuncias não encontradas."), @ApiResponse(responseCode = "401", description = "Usuário não autorizado.")})
+    @GetMapping("/todas")
+    public List<DenunciaDTO> pesquisarTodas() throws PomboException {
+        return denunciaService.pesquisarTodas();
+    }
+
     @Operation(summary = "Pesquisar uma denúncia pelo id", description = "Retorna denuncia especifica para o admin.", responses = {@ApiResponse(responseCode = "200", description = "Denuncia retornada com sucesso."), @ApiResponse(responseCode = "400", description = "Denuncia não encontrada."), @ApiResponse(responseCode = "401", description = "Usuário não autorizado.")})
     @GetMapping("/{id}")
-    public ResponseEntity<Denuncia> pesquisarPorId(@PathVariable String id) throws PomboException {
-        Denuncia denuncia = denunciaService.pesquisarPorId(id);
+    public ResponseEntity<DenunciaDTO> pesquisarPorId(@PathVariable String id) throws PomboException {
+        DenunciaDTO denuncia = denunciaService.pesquisarPorId(id);
         return ResponseEntity.ok(denuncia);
     }
 
     @Operation(summary = "Pesquisar com filtro", description = "Retorna uma lista de denúncias de acordo com o filtro selecionado.")
     @PostMapping("/filtrar")
-    public List<Denuncia> pesquisarComFiltros(@RequestBody DenunciaSeletor seletor) {
+    public List<DenunciaDTO> pesquisarComFiltros(@RequestBody DenunciaSeletor seletor) {
         return denunciaService.pesquisarComFiltros(seletor);
     }
 
