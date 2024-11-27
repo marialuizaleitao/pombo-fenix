@@ -1,5 +1,6 @@
 package com.vilu.pombo.model.entity;
 
+import com.vilu.pombo.model.dto.DenunciaDTO;
 import com.vilu.pombo.model.enums.Motivo;
 import com.vilu.pombo.model.enums.StatusDenuncia;
 import jakarta.persistence.*;
@@ -38,4 +39,25 @@ public class Denuncia {
     @CreationTimestamp
     private LocalDateTime criadoEm;
 
+    public DenunciaDTO toDTO() {
+        DenunciaDTO dto = new DenunciaDTO();
+        dto.setId(this.id);
+        dto.setPruuId(this.pruu != null ? this.pruu.getId() : null);
+        dto.setUsuarioId(this.usuario != null ? this.usuario.getId() : null);
+        dto.setMotivo(this.motivo);
+        dto.setStatus(this.status);
+        dto.setCriadoEm(this.criadoEm);
+        return dto;
+    }
+
+    public static Denuncia fromDTO(DenunciaDTO dto, Pruu pruu, Usuario usuario) {
+        Denuncia denuncia = new Denuncia();
+        denuncia.setId(dto.getId());
+        denuncia.setPruu(pruu);
+        denuncia.setUsuario(usuario);
+        denuncia.setMotivo(dto.getMotivo());
+        denuncia.setStatus(dto.getStatus());
+        denuncia.setCriadoEm(dto.getCriadoEm());
+        return denuncia;
+    }
 }

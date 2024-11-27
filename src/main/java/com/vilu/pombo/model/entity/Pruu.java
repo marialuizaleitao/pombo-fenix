@@ -12,6 +12,7 @@ import org.hibernate.validator.constraints.URL;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Data
@@ -38,7 +39,7 @@ public class Pruu {
     @JsonBackReference(value = "pruu-denuncias")
     private List<Denuncia> denuncias;
 
-    @URL(message = "A URL da foto inserida deve ser válida.")
+    @Column(columnDefinition = "TEXT")
     private String imagem;
 
     private int quantidadeCurtidas = 0;
@@ -48,5 +49,35 @@ public class Pruu {
     private LocalDateTime criadoEm;
 
     private boolean bloqueado = false;
+
+    public PruuDTO toDTO() {
+        PruuDTO dto = new PruuDTO();
+        dto.setId(this.id);
+        dto.setUsuarioId(this.usuario != null ? this.usuario.getId() : null);
+        dto.setTexto(this.texto);
+        dto.setUsuariosQueCurtiramIds(this.usuariosQueCurtiram != null
+                ? this.usuariosQueCurtiram.stream().map(Usuario::getId).collect(Collectors.toList())
+                : null);
+        dto.setImagem(this.imagem);
+        dto.setQuantidadeCurtidas(this.quantidadeCurtidas);
+        dto.setQuantidadeDenuncias(this.quantidadeDenuncias);
+        dto.setCriadoEm(this.criadoEm);
+        dto.setBloqueado(this.bloqueado);
+        return dto;
+    }
+
+    public static Pruu fromDTO(PruuDTO dto, Usuario usuario, List<Usuario> usuariosQueCurtiram) {
+        Pruu pruu = new Pruu();
+        pruu.setId(dto.getId());
+        pruu.setUsuario(usuario);
+        pruu.setTexto(dto.getTexto());
+        pruu.setUsuariosQueCurtiram(usuariosQueCurtiram);
+        pruu.setImagem(dto.getImagem());
+        pruu.setQuantidadeCurtidas(dto.getQuantidadeCurtidas());
+        pruu.setQuantidadeDenuncias(dto.getQuantidadeDenuncias());
+        pruu.setCriadoEm(dto.getCriadoEm());
+        pruu.setBloqueado(dto.isBloqueado());
+        return pruu;
+    }
 
 }
