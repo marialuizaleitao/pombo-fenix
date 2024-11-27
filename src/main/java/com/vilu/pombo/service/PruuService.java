@@ -41,7 +41,6 @@ public class PruuService {
     public void toggleCurtida(String idPruu) throws PomboException {
     	Usuario subject = authService.getUsuarioAutenticado();
 
-        
         Pruu pruu = pruuRepository.findById(idPruu).orElseThrow(() -> new PomboException("O pruu selecionado não foi encontrado.", HttpStatus.BAD_REQUEST));
         Usuario usuario = usuarioRepository.findById(subject.getId()).orElseThrow(() -> new PomboException("Usuário não encontrado.", HttpStatus.BAD_REQUEST));
 
@@ -114,16 +113,19 @@ public class PruuService {
             pruusFiltrados = new ArrayList<>(pruuRepository.findAll(seletor, Sort.by(Sort.Direction.DESC, "criadoEm")));
         }
 
+        if (seletor.isEuCurti()) {
+            Usuario subject = authService.getUsuarioAutenticado();
+
+            return pruusFiltrados.stream()
+                    .filter(pruu -> pruu.getUsuariosQueCurtiram() != null &&
+                            pruu.getUsuariosQueCurtiram().stream()
+                                    .anyMatch(usuario -> usuario.getId().equals(subject.getId())))
+                    .collect(Collectors.toList());
+        }
+
         pruusFiltrados = pruusFiltrados.stream()
                 .filter(pub -> !pub.isBloqueado())
                 .collect(Collectors.toList());
-
-        if (seletor.isTemCurtida()) {
-            pruusFiltrados = pruusFiltrados.stream()
-                    .filter(pub -> pub.getUsuariosQueCurtiram().stream()
-                            .anyMatch(user -> user.getId().equals(seletor.getIdUsuario())))
-                    .collect(Collectors.toList());
-        }
 
         return pruusFiltrados;
     }

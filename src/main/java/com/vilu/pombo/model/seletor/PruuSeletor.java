@@ -21,8 +21,8 @@ public class PruuSeletor extends BaseSeletor implements Specification<Pruu> {
     private LocalDateTime criadoEmInicio;
     private LocalDateTime criadoEmFim;
 
-    @JsonProperty("temCurtida")
-    private boolean temCurtida;
+    @JsonProperty("euCurti")
+    private boolean euCurti;
 
     @Override
     public Predicate toPredicate(Root<Pruu> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
@@ -36,7 +36,9 @@ public class PruuSeletor extends BaseSeletor implements Specification<Pruu> {
             predicates.add(cb.equal(root.get("usuario").get("id"), this.getIdUsuario()));
         }
 
-        filtrarPorData(root, cb, predicates, this.getCriadoEmInicio(), this.getCriadoEmFim(), "criadoEm");
+        if (this.criadoEmInicio != null && this.criadoEmFim != null) {
+            filtrarPorData(root, cb, predicates, this.getCriadoEmInicio(), this.getCriadoEmFim(), "criadoEm");
+        }
 
         return cb.and(predicates.toArray(new Predicate[0]));
     }

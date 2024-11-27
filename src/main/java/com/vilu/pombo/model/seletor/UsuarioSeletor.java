@@ -17,6 +17,7 @@ public class UsuarioSeletor extends BaseSeletor implements Specification<Usuario
 
     private String nome;
     private String email;
+    private String cpf;
     private LocalDateTime criadoEmInicio;
     private LocalDateTime criadoEmFim;
 
@@ -32,7 +33,13 @@ public class UsuarioSeletor extends BaseSeletor implements Specification<Usuario
             predicates.add(cb.like(root.get("email"), "%" + this.getEmail() + "%"));
         }
 
-        filtrarPorData(root, cb, predicates, this.getCriadoEmInicio(), this.getCriadoEmFim(), "criadoEm");
+        if (this.getCpf() != null && !this.getCpf().trim().isEmpty()) {
+            predicates.add(cb.like(root.get("cpf"), "%" + this.getCpf() + "%"));
+        }
+
+        if(this.criadoEmInicio != null && this.criadoEmFim != null) {
+            filtrarPorData(root, cb, predicates, this.getCriadoEmInicio(), this.getCriadoEmFim(), "criadoEm");
+        }
 
         return cb.and(predicates.toArray(new Predicate[0]));
     }

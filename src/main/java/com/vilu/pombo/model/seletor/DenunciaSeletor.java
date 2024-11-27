@@ -44,7 +44,9 @@ public class DenunciaSeletor extends BaseSeletor implements Specification<Denunc
             predicates.add(cb.equal(root.get("status"), this.getStatus()));
         }
 
-        filtrarPorData(root, cb, predicates, this.getCriadoEmInicio(), this.getCriadoEmFim(), "criadoEm");
+        if (this.criadoEmInicio != null && this.criadoEmFim != null) {
+            filtrarPorData(root, cb, predicates, this.getCriadoEmInicio(), this.getCriadoEmFim(), "criadoEm");
+        }
 
         return cb.and(predicates.toArray(new Predicate[0]));
     }
