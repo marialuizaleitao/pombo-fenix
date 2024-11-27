@@ -3,6 +3,7 @@ package com.vilu.pombo.service;
 import com.vilu.pombo.auth.RSAPasswordEncoder;
 import com.vilu.pombo.exception.PomboException;
 import com.vilu.pombo.model.entity.Usuario;
+
 import com.vilu.pombo.model.repository.UsuarioRepository;
 import com.vilu.pombo.model.seletor.UsuarioSeletor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +22,10 @@ public class UsuarioService implements UserDetailsService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+    
     @Autowired
     private ImagemService imagemService;
+    
     @Autowired
     private RSAPasswordEncoder encoder;
 
