@@ -143,4 +143,9 @@ public class PruuService {
         pruuRepository.save(pruu);
     }
 
+    public List<Usuario> pesquisarUsuariosQueCurtiram(String pruuId) throws PomboException {
+        Pruu pruu = pruuRepository.findById(pruuId).orElseThrow(() -> new PomboException("Pruu não encontrado.", HttpStatus.NOT_FOUND));
+        return pruu.getUsuariosQueCurtiram();
+    }
+
 }

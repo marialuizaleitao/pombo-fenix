@@ -2,6 +2,7 @@ package com.vilu.pombo.controller;
 
 import com.vilu.pombo.auth.AuthService;
 import com.vilu.pombo.exception.PomboException;
+import com.vilu.pombo.model.entity.Pruu;
 import com.vilu.pombo.model.entity.Usuario;
 import com.vilu.pombo.model.seletor.UsuarioSeletor;
 import com.vilu.pombo.service.UsuarioService;
@@ -15,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -30,7 +30,7 @@ public class UsuarioController {
     private AuthService authService;
 
     @PostMapping("/salvar-foto")
-    public void salvarFotoDePerfil(@RequestParam("fotoDePerfil") MultipartFile foto) throws IOException, PomboException {
+    public void salvarFotoDePerfil(@RequestParam("fotoDePerfil") MultipartFile foto) throws PomboException {
         Usuario subject = authService.getUsuarioAutenticado();
         if (foto == null) {
             throw new PomboException("O arquivo inserido é inválido.", HttpStatus.BAD_REQUEST);
@@ -40,8 +40,15 @@ public class UsuarioController {
 
     @Operation(summary = "Atualizar um usuário", description = "Atualiza os dados de um usuário existente.")
     @PutMapping(path = "/atualizar")
-    public ResponseEntity<Usuario> atualizar(@Valid @RequestBody Usuario usuarioAlterado) throws PomboException {
-        return ResponseEntity.ok(usuarioService.atualizar(usuarioAlterado));
+    public ResponseEntity<Usuario> atualizar(@Valid @RequestBody Usuario usuarioASerAtualizado) throws PomboException {
+        Usuario subject = authService.getUsuarioAutenticado();
+
+        if (!subject.getId().equals(usuarioASerAtualizado.getId())) {
+            throw new PomboException("Você não tem permissão para alterar este usuário.", HttpStatus.FORBIDDEN);
+        }
+        usuarioASerAtualizado.setId(subject.getId());
+
+        return ResponseEntity.ok(usuarioService.atualizar(usuarioASerAtualizado));
     }
 
     @Operation(summary = "Deletar usuário", description = "Exclui um usuário através do seu ID.", responses = {@ApiResponse(responseCode = "200", description = "Usuário excluído com sucesso"),})
@@ -68,6 +75,12 @@ public class UsuarioController {
     @PostMapping("/filtrar")
     public List<Usuario> pesquisarComFiltros(@RequestBody UsuarioSeletor seletor) {
         return usuarioService.pesquisarComFiltros(seletor);
+    }
+
+    @Operation(summary = "Pesquisar os pruus curtidos pelo usuário", description = "Retorna uma lista de pruus que foram curtidos pelo usuário.")
+    @GetMapping("/meus-likes")
+    public List<Pruu> pesquisarPruusCurtidosPeloUsuario() throws PomboException {
+        return usuarioService.pesquisarPruusCurtidosPeloUsuario();
     }
 
     @Operation(summary = "Obter o usuário autenticado", description = "Retorna o usuário autenticado.")

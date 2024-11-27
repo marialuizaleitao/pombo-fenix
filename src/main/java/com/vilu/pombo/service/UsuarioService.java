@@ -1,7 +1,8 @@
 package com.vilu.pombo.service;
 
-import com.vilu.pombo.auth.RSAPasswordEncoder;
+import com.vilu.pombo.auth.AuthService;
 import com.vilu.pombo.exception.PomboException;
+import com.vilu.pombo.model.entity.Pruu;
 import com.vilu.pombo.model.entity.Usuario;
 
 import com.vilu.pombo.model.repository.UsuarioRepository;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,14 +22,17 @@ import java.util.List;
 @Service
 public class UsuarioService implements UserDetailsService {
 
+    private static Object Collectors;
     @Autowired
     private UsuarioRepository usuarioRepository;
     
     @Autowired
     private ImagemService imagemService;
-    
+
     @Autowired
-    private RSAPasswordEncoder encoder;
+    private PasswordEncoder encoder;
+    @Autowired
+    private AuthService authService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -94,6 +99,17 @@ public class UsuarioService implements UserDetailsService {
         String imagemBase64 = imagemService.processarImagem(foto);
         usuario.setFotoDePerfil(imagemBase64);
         usuarioRepository.save(usuario);
+    }
+
+    public List<Pruu> pesquisarPruusCurtidosPeloUsuario() throws PomboException {
+        Usuario subject = authService.getUsuarioAutenticado();
+
+        Usuario usuario = usuarioRepository.findById(subject.getId()).orElseThrow(() -> new PomboException("Usuário não encontrado.", HttpStatus.BAD_REQUEST));
+
+        if (usuario.getPruus().isEmpty()) {
+            throw new PomboException("O usuário não possui pruus curtidos.", HttpStatus.NOT_FOUND);
+        }
+        return usuario.getPruus();
     }
 
 }

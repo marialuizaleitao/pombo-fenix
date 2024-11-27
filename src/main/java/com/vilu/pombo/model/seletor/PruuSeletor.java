@@ -21,9 +21,6 @@ public class PruuSeletor extends BaseSeletor implements Specification<Pruu> {
     private LocalDateTime criadoEmInicio;
     private LocalDateTime criadoEmFim;
 
-    @JsonProperty("euCurti")
-    private boolean euCurti;
-
     @Override
     public Predicate toPredicate(Root<Pruu> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
         List<Predicate> predicates = new ArrayList<>();
