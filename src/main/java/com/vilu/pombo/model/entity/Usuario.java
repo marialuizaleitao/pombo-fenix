@@ -1,6 +1,7 @@
 package com.vilu.pombo.model.entity;
 
 import com.vilu.pombo.model.dto.UsuarioDTO;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -14,6 +15,7 @@ import org.hibernate.validator.constraints.br.CPF;
 import com.vilu.pombo.model.enums.Perfil;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,6 +59,11 @@ public class Usuario {
     @OneToMany(mappedBy = "usuario")
     private List<Pruu> pruus;
 
+    @ToString.Exclude
+    @OneToMany(mappedBy = "usuario")
+    @JsonBackReference(value = "usuario-denuncias")
+    private List<Denuncia> denuncias = new ArrayList<>();
+
     @CreationTimestamp
     private LocalDateTime criadoEm;
 
@@ -68,14 +75,13 @@ public class Usuario {
         dto.setCpf(this.cpf);
         dto.setFotoDePerfil(this.fotoDePerfil);
         dto.setPerfil(this.perfil);
-        dto.setPruusIds(this.pruus != null
-                ? this.pruus.stream().map(Pruu::getId).collect(Collectors.toList())
-                : null);
+        dto.setPruusIds(this.pruus != null ? this.pruus.stream().map(Pruu::getId).collect(Collectors.toList()) : null);
+        dto.setDenunciaIds(this.denuncias != null ? this.denuncias.stream().map(Denuncia::getId).collect(Collectors.toList()) : null);
         dto.setCriadoEm(this.criadoEm);
         return dto;
     }
 
-    public static Usuario fromDTO(UsuarioDTO dto, List<Pruu> pruus) {
+    public static Usuario fromDTO(UsuarioDTO dto, List<Pruu> pruus, List<Denuncia> denuncias) {
         Usuario usuario = new Usuario();
         usuario.setId(dto.getId());
         usuario.setNome(dto.getNome());
@@ -84,6 +90,7 @@ public class Usuario {
         usuario.setFotoDePerfil(dto.getFotoDePerfil());
         usuario.setPerfil(dto.getPerfil());
         usuario.setPruus(pruus);
+        usuario.setDenuncias(denuncias);
         usuario.setCriadoEm(dto.getCriadoEm());
         return usuario;
     }

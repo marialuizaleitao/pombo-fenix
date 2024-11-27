@@ -16,5 +16,6 @@ public class UsuarioDTO {
     private String fotoDePerfil;
     private Perfil perfil;
     private List<String> pruusIds;
+    private List<String> denunciaIds;
     private LocalDateTime criadoEm;
 }
