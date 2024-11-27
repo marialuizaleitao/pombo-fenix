@@ -1,8 +1,10 @@
 package com.vilu.pombo.controller;
 
+import com.vilu.pombo.auth.AuthService;
 import com.vilu.pombo.exception.PomboException;
 import com.vilu.pombo.model.dto.DenunciaDTO;
 import com.vilu.pombo.model.entity.Denuncia;
+import com.vilu.pombo.model.entity.Usuario;
 import com.vilu.pombo.model.enums.StatusDenuncia;
 import com.vilu.pombo.model.seletor.DenunciaSeletor;
 import com.vilu.pombo.service.DenunciaService;
@@ -22,6 +24,8 @@ public class DenunciaController {
 
     @Autowired
     private DenunciaService denunciaService;
+    @Autowired
+    private AuthService authService;
 
     @Operation(summary = "Inserir nova denuncia", description = "Cria uma nova denuncia", responses = {@ApiResponse(responseCode = "200", description = "Denuncia registrada com sucesso"),})
     @PostMapping("/cadastrar")
@@ -37,9 +41,11 @@ public class DenunciaController {
     }
 
     @Operation(summary = "Excluir denuncia", description = "Exclui a denuncia", responses = {@ApiResponse(responseCode = "200", description = "Denuncia excluida com sucesso"), @ApiResponse(responseCode = "400", description = "Denuncia não encontrada")})
-    @DeleteMapping("/excluir/{idDenuncia}/{idUsuario}")
-    public ResponseEntity<Void> excluir(@PathVariable String idDenuncia, @PathVariable String idUsuario) throws PomboException {
-        denunciaService.excluir(idDenuncia, idUsuario);
+    @DeleteMapping("/excluir/{idDenuncia}")
+    public ResponseEntity<Void> excluir(@PathVariable String idDenuncia) throws PomboException {
+        Usuario subject = authService.getUsuarioAutenticado();
+
+        denunciaService.excluir(idDenuncia, subject.getId());
         return ResponseEntity.ok().build();
     }
 

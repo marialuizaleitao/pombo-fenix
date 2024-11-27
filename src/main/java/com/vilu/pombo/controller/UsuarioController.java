@@ -2,6 +2,7 @@ package com.vilu.pombo.controller;
 
 import com.vilu.pombo.auth.AuthService;
 import com.vilu.pombo.exception.PomboException;
+import com.vilu.pombo.model.entity.Pruu;
 import com.vilu.pombo.model.entity.Usuario;
 import com.vilu.pombo.model.seletor.UsuarioSeletor;
 import com.vilu.pombo.service.UsuarioService;
@@ -68,6 +69,12 @@ public class UsuarioController {
     @PostMapping("/filtrar")
     public List<Usuario> pesquisarComFiltros(@RequestBody UsuarioSeletor seletor) {
         return usuarioService.pesquisarComFiltros(seletor);
+    }
+
+    @Operation(summary = "Pesquisar os pruus curtidos pelo usuário", description = "Retorna uma lista de pruus que foram curtidos pelo usuário.")
+    @GetMapping("/meus-likes")
+    public List<Pruu> pesquisarPruusCurtidosPeloUsuario() throws PomboException {
+        return usuarioService.pesquisarPruusCurtidosPeloUsuario();
     }
 
     @Operation(summary = "Obter o usuário autenticado", description = "Retorna o usuário autenticado.")
