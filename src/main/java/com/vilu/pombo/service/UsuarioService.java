@@ -22,7 +22,6 @@ import java.util.List;
 @Service
 public class UsuarioService implements UserDetailsService {
 
-    private static Object Collectors;
     @Autowired
     private UsuarioRepository usuarioRepository;
     
