@@ -1,5 +1,6 @@
 package com.vilu.pombo.service;
 
+import com.vilu.pombo.auth.RSAPasswordEncoder;
 import com.vilu.pombo.exception.PomboException;
 import com.vilu.pombo.model.entity.Usuario;
 import com.vilu.pombo.model.repository.UsuarioRepository;
@@ -11,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -19,10 +21,14 @@ public class UsuarioService implements UserDetailsService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+    @Autowired
+    private ImagemService imagemService;
+    @Autowired
+    private RSAPasswordEncoder encoder;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return usuarioRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado " + username));
+        return (UserDetails) usuarioRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado " + username));
     }
 
     public void cadastrar(Usuario usuario) throws PomboException {
@@ -38,12 +44,20 @@ public class UsuarioService implements UserDetailsService {
     }
 
     public Usuario atualizar(Usuario usuarioASerAtualizado) throws PomboException {
-        usuarioRepository.findById(usuarioASerAtualizado.getId()).orElseThrow(() -> new PomboException("Usuário não encontrado.", HttpStatus.BAD_REQUEST));
-        return usuarioRepository.save(usuarioASerAtualizado);
+        Usuario usuarioExistente = usuarioRepository.findById(usuarioASerAtualizado.getId()).orElseThrow(() -> new PomboException("Usuário não encontrado.", HttpStatus.NOT_FOUND));
+
+        usuarioExistente.setNome(usuarioASerAtualizado.getNome());
+        usuarioExistente.setEmail(usuarioASerAtualizado.getEmail());
+
+        if (usuarioASerAtualizado.getSenha() != null && !usuarioASerAtualizado.getSenha().isEmpty()) {
+            usuarioExistente.setSenha(encoder.encode(usuarioASerAtualizado.getSenha()));
+        }
+
+        return usuarioRepository.save(usuarioExistente);
     }
 
     public void excluir(String id) throws PomboException {
-        Usuario usuario = usuarioRepository.findById(id).orElseThrow(() -> new PomboException("Usuário não encontrado.", HttpStatus.BAD_REQUEST));
+        Usuario usuario = usuarioRepository.findById(id).orElseThrow(() -> new PomboException("Usuário não encontrado.", HttpStatus.NOT_FOUND));
 
         if (usuario.getPruus().isEmpty() && usuario.getDenuncias().isEmpty()) {
             usuarioRepository.deleteById(id);
@@ -57,7 +71,7 @@ public class UsuarioService implements UserDetailsService {
     }
 
     public Usuario pesquisarPorId(String id) throws PomboException {
-        return usuarioRepository.findById(id).orElseThrow(() -> new PomboException("Usuário não encontrado.", HttpStatus.BAD_REQUEST));
+        return usuarioRepository.findById(id).orElseThrow(() -> new PomboException("Usuário não encontrado.", HttpStatus.NOT_FOUND));
     }
 
     public List<Usuario> pesquisarComFiltros(UsuarioSeletor seletor) {
@@ -70,6 +84,13 @@ public class UsuarioService implements UserDetailsService {
         }
 
         return usuarioRepository.findAll(seletor);
+    }
+
+    public void salvarFotoDePerfil(MultipartFile foto, String usuarioId) throws PomboException {
+        Usuario usuario = usuarioRepository.findById(usuarioId).orElseThrow(() -> new PomboException("Usuário não encontrado.", HttpStatus.NOT_FOUND));
+        String imagemBase64 = imagemService.processarImagem(foto);
+        usuario.setFotoDePerfil(imagemBase64);
+        usuarioRepository.save(usuario);
     }
 
 }

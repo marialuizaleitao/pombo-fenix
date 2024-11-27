@@ -1,25 +1,33 @@
 package com.vilu.pombo.controller;
 
+import com.vilu.pombo.auth.AuthService;
 import com.vilu.pombo.exception.PomboException;
 import com.vilu.pombo.model.entity.Usuario;
 import com.vilu.pombo.model.seletor.UsuarioSeletor;
 import com.vilu.pombo.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
 @RequestMapping(path = "/usuarios")
 @CrossOrigin(origins = {"http://localhost:4200"}, maxAge = 3600)
+@MultipartConfig(fileSizeThreshold = 10485760)
 public class UsuarioController {
 
     @Autowired
     private UsuarioService usuarioService;
+    @Autowired
+    private AuthService authService;
 
     @Operation(summary = "Atualizar um usuário", description = "Atualiza os dados de um usuário existente.")
     @PutMapping(path = "/atualizar")
@@ -51,6 +59,15 @@ public class UsuarioController {
     @PostMapping("/filtrar")
     public List<Usuario> pesquisarComFiltros(@RequestBody UsuarioSeletor seletor) {
         return usuarioService.pesquisarComFiltros(seletor);
+    }
+
+    @PostMapping("/salvar-foto")
+    public void salvarFotoDePerfil(@RequestParam("fotoDePerfil") MultipartFile foto) throws IOException, PomboException {
+        Usuario subject = authService.getUsuarioAutenticado();
+        if (foto == null) {
+            throw new PomboException("O arquivo inserido é inválido.", HttpStatus.BAD_REQUEST);
+        }
+        usuarioService.salvarFotoDePerfil(foto, subject.getId());
     }
 
 }
