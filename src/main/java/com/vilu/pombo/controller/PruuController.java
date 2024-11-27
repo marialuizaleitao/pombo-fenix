@@ -1,18 +1,12 @@
 package com.vilu.pombo.controller;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.vilu.pombo.auth.AuthService;
 import com.vilu.pombo.exception.PomboException;
@@ -28,6 +22,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping(path = "/pruus")
@@ -39,18 +34,26 @@ public class PruuController {
 	@Autowired
 	private AuthService authService;
 
+	@PostMapping("/salvar-foto")
+	public void salvarImagem(@RequestParam("fotoDePerfil") MultipartFile foto, @RequestParam String pruuId) throws IOException, PomboException {
+		Usuario subject = authService.getUsuarioAutenticado();
+		if (foto == null) {
+			throw new PomboException("O arquivo inserido é inválido.", HttpStatus.BAD_REQUEST);
+		}
+		pruuService.salvarImagem(foto, pruuId, subject.getId());
+	}
+
 	@Operation(summary = "Inserir novo pruu", description = "Adiciona um novo pruu ao sistema.", responses = {@ApiResponse(responseCode = "200", description = "Pruu criado com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Pruu.class))), @ApiResponse(responseCode = "400", description = "Erro de validação ou regra de negócio", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"Erro de validação: campo X é obrigatório\", \"status\": 400}")))})
     @PostMapping(path = "/cadastrar")
     public ResponseEntity<Pruu> cadastrar(@Valid @RequestBody Pruu novoPruu) throws PomboException {
     	 Usuario subject = authService.getUsuarioAutenticado();
 
          if (subject.getPerfil() == Perfil.USUARIO) {
-
              novoPruu.setUsuario(subject);
              Pruu pruuCriado = pruuService.cadastrar(novoPruu);
              return ResponseEntity.status(201).body(pruuCriado);
          } else {
-             throw new PomboException("Administradores não podem criar Pruus!", HttpStatus.BAD_REQUEST);
+             throw new PomboException("Administradores não podem criar Pruus.", HttpStatus.BAD_REQUEST);
          }
     }
 

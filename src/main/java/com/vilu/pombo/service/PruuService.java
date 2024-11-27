@@ -4,7 +4,6 @@ import com.vilu.pombo.auth.AuthService;
 import com.vilu.pombo.exception.PomboException;
 import com.vilu.pombo.model.entity.Pruu;
 import com.vilu.pombo.model.entity.Usuario;
-import com.vilu.pombo.model.enums.Perfil;
 import com.vilu.pombo.model.repository.PruuRepository;
 import com.vilu.pombo.model.repository.UsuarioRepository;
 import com.vilu.pombo.model.seletor.PruuSeletor;
@@ -12,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,9 +27,11 @@ public class PruuService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
-    
+
     @Autowired
     private AuthService authService;
+    @Autowired
+    private ImagemService imagemService;
 
     public Pruu cadastrar(Pruu pruu) throws PomboException {
         Optional<Usuario> autor = usuarioRepository.findById(pruu.getUsuario().getId());
@@ -39,7 +40,7 @@ public class PruuService {
     }
 
     public void toggleCurtida(String idPruu) throws PomboException {
-    	Usuario subject = authService.getUsuarioAutenticado();
+        Usuario subject = authService.getUsuarioAutenticado();
 
         Pruu pruu = pruuRepository.findById(idPruu).orElseThrow(() -> new PomboException("O pruu selecionado não foi encontrado.", HttpStatus.BAD_REQUEST));
         Usuario usuario = usuarioRepository.findById(subject.getId()).orElseThrow(() -> new PomboException("Usuário não encontrado.", HttpStatus.BAD_REQUEST));
@@ -128,6 +129,18 @@ public class PruuService {
                 .collect(Collectors.toList());
 
         return pruusFiltrados;
+    }
+
+    public void salvarImagem(MultipartFile foto, String pruuId, String usuarioId) throws PomboException {
+        Pruu pruu = pruuRepository.findById(pruuId).orElseThrow(() -> new PomboException("Pruu não encontrado.", HttpStatus.NOT_FOUND));
+
+        if (!pruu.getUsuario().getId().equals(usuarioId)) {
+            throw new PomboException("Você não tem permissão para fazer esta ação.", HttpStatus.FORBIDDEN);
+        }
+
+        String imagemBase64 = imagemService.processarImagem(foto);
+        pruu.setImagem(imagemBase64);
+        pruuRepository.save(pruu);
     }
 
 }
