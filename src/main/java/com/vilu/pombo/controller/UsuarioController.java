@@ -29,6 +29,15 @@ public class UsuarioController {
     @Autowired
     private AuthService authService;
 
+    @PostMapping("/salvar-foto")
+    public void salvarFotoDePerfil(@RequestParam("fotoDePerfil") MultipartFile foto) throws IOException, PomboException {
+        Usuario subject = authService.getUsuarioAutenticado();
+        if (foto == null) {
+            throw new PomboException("O arquivo inserido é inválido.", HttpStatus.BAD_REQUEST);
+        }
+        usuarioService.salvarFotoDePerfil(foto, subject.getId());
+    }
+
     @Operation(summary = "Atualizar um usuário", description = "Atualiza os dados de um usuário existente.")
     @PutMapping(path = "/atualizar")
     public ResponseEntity<Usuario> atualizar(@Valid @RequestBody Usuario usuarioAlterado) throws PomboException {
@@ -61,13 +70,11 @@ public class UsuarioController {
         return usuarioService.pesquisarComFiltros(seletor);
     }
 
-    @PostMapping("/salvar-foto")
-    public void salvarFotoDePerfil(@RequestParam("fotoDePerfil") MultipartFile foto) throws IOException, PomboException {
-        Usuario subject = authService.getUsuarioAutenticado();
-        if (foto == null) {
-            throw new PomboException("O arquivo inserido é inválido.", HttpStatus.BAD_REQUEST);
-        }
-        usuarioService.salvarFotoDePerfil(foto, subject.getId());
+    @Operation(summary = "Obter o usuário autenticado", description = "Retorna o usuário autenticado.")
+    @GetMapping("/usuario-autenticado")
+    public ResponseEntity<Usuario> buscarUsuarioAutenticado() throws PomboException {
+        Usuario usuario = authService.getUsuarioAutenticado();
+        return ResponseEntity.ok(usuario);
     }
 
 }
