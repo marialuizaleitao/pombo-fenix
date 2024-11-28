@@ -1,6 +1,5 @@
 package com.vilu.pombo.model.seletor;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vilu.pombo.model.entity.Pruu;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;

@@ -15,7 +15,7 @@ public abstract class BaseSeletor {
     private int limite;
 
     public BaseSeletor() {
-        this.limite = 100;
+        this.limite = 0;
         this.pagina = 0;
     }
 
