@@ -30,6 +30,10 @@ public class DenunciaController {
     @Operation(summary = "Inserir nova denuncia", description = "Cria uma nova denuncia", responses = {@ApiResponse(responseCode = "200", description = "Denuncia registrada com sucesso"),})
     @PostMapping("/cadastrar")
     public ResponseEntity<Denuncia> cadastrar(@Valid @RequestBody Denuncia denuncia) throws PomboException {
+    	Usuario subject = authService.getUsuarioAutenticado();
+    	
+    	denuncia.setUsuario(subject);
+    	
         return ResponseEntity.ok(denunciaService.cadastrar(denuncia));
     }
 
