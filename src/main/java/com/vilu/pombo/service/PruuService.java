@@ -75,20 +75,8 @@ public class PruuService {
         pruuRepository.save(pruu);
     }
 
-    public List<Pruu> pesquisarTodos(PruuSeletor seletor) {
-        List<Pruu> pruus;
-
-        if (seletor.temPaginacao()) {
-            int pageNumber = seletor.getPagina();
-            int pageSize = Math.min(seletor.getLimite(), 100);
-            PageRequest page = PageRequest.of(pageNumber - 1, pageSize, Sort.by(Sort.Direction.DESC, "criadoEm"));
-            pruus = new ArrayList<>(pruuRepository.findAll(seletor, page).toList());
-        } else {
-            PageRequest page = PageRequest.of(0, 100, Sort.by(Sort.Direction.DESC, "criadoEm"));
-            pruus = new ArrayList<>(pruuRepository.findAll(seletor, page).toList());
-        }
-
-        return pruus;
+    public List<Pruu> pesquisarTodos() {
+        return pruuRepository.findAll();
     }
 
     public Pruu pesquisarPorId(String id) throws PomboException {
