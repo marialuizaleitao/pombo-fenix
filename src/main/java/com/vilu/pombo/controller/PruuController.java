@@ -33,12 +33,12 @@ public class PruuController {
     private AuthService authService;
 
     @PostMapping("/salvar-foto")
-    public void salvarImagem(@RequestParam("fotoDePerfil") MultipartFile foto, @RequestParam String pruuId) throws IOException, PomboException {
+    public void salvarImagem(@RequestParam("fotoDePerfil") MultipartFile foto, @RequestParam String idPruu) throws IOException, PomboException {
         Usuario subject = authService.getUsuarioAutenticado();
         if (foto == null) {
             throw new PomboException("O arquivo inserido é inválido.", HttpStatus.BAD_REQUEST);
         }
-        pruuService.salvarImagem(foto, pruuId, subject.getId());
+        pruuService.salvarImagem(foto, idPruu, subject.getId());
     }
 
     @Operation(summary = "Inserir novo pruu", description = "Adiciona um novo pruu ao sistema.", responses = {@ApiResponse(responseCode = "200", description = "Pruu criado com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Pruu.class))), @ApiResponse(responseCode = "400", description = "Erro de validação ou regra de negócio", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"Erro de validação: campo X é obrigatório\", \"status\": 400}")))})
