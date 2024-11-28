@@ -2,6 +2,7 @@ package com.vilu.pombo.model.entity;
 
 import com.vilu.pombo.model.dto.UsuarioDTO;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -52,7 +53,7 @@ public class Usuario implements UserDetails {
 	@Size(max = 500)
 	private String senha;
 
-	@Column(columnDefinition = "TEXT")
+	@Column(columnDefinition = "LONGTEXT")
 	private String fotoDePerfil;
 
 	@Enumerated(EnumType.STRING)
@@ -63,6 +64,7 @@ public class Usuario implements UserDetails {
 
 	@ToString.Exclude
 	@OneToMany(mappedBy = "usuario")
+	@JsonBackReference
 	private List<Pruu> pruus;
 
 	@ToString.Exclude
@@ -73,6 +75,7 @@ public class Usuario implements UserDetails {
 	@CreationTimestamp
 	private LocalDateTime criadoEm;
 
+	@JsonIgnore
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		List<GrantedAuthority> authorities = new ArrayList<>();
