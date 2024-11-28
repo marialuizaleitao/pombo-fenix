@@ -98,7 +98,7 @@ public class PruuController {
     @Operation(summary = "Pesquisar usuários que curtiram", description = "Retorna uma lista de usuários que curtiram determinada postagem.", responses = {
             @ApiResponse(responseCode = "200", description = "Usuários listados com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Pruu.class))),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content(mediaType = "application/json", schema = @Schema(description = "Detalhes do erro interno", example = "{\"message\": \"Erro interno do servidor\", \"status\": 500}")))})
-    @PostMapping("/usuarios-que-curtiram")
+    @GetMapping("/usuarios-que-curtiram/{pruuId}")
     public List<Usuario> pesquisarUsuariosQueCurtiram(@PathVariable String pruuId) throws PomboException {
         return pruuService.pesquisarUsuariosQueCurtiram(pruuId);
     }
