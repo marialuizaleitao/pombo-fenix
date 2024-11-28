@@ -39,7 +39,7 @@ public class Pruu {
     @JsonBackReference(value = "pruu-denuncias")
     private List<Denuncia> denuncias;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "LONGTEXT")
     private String imagem;
 
     private int quantidadeCurtidas = 0;
