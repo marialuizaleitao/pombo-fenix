@@ -20,19 +20,19 @@ import com.vilu.pombo.model.repository.UsuarioRepository;
 @Service
 public class JwtService {
 	private final JwtEncoder jwtEncoder;
+	
 	@Autowired
 	private UsuarioRepository usuarioRepository;
 
-	public JwtService(JwtEncoder jwtEncoder, UsuarioRepository usuarioRepository) {
+	public JwtService(JwtEncoder jwtEncoder) {
 		this.jwtEncoder = jwtEncoder;
-		this.usuarioRepository = usuarioRepository;
 	}
 
 	public String getGenerateToken(Authentication authentication) throws PomboException {
 		Instant now = Instant.now();
 		long dezHorasEmSegundo = 36000L;
 
-		String rules = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority)
+		String roles = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority)
 				.collect(Collectors.joining(" "));
 
 		Object principal = authentication.getPrincipal();
@@ -49,7 +49,7 @@ public class JwtService {
 		}
 
 		JwtClaimsSet claims = JwtClaimsSet.builder().issuer("pombo").issuedAt(now)
-				.expiresAt(now.plusSeconds(dezHorasEmSegundo)).subject(authentication.getName()).claim("roles", rules)
+				.expiresAt(now.plusSeconds(dezHorasEmSegundo)).subject(authentication.getName()).claim("roles", roles)
 				.claim("idUsuario", authenticatedUser.getId()).build();
 
 		return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();

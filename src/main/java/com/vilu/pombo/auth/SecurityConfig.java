@@ -38,9 +38,6 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        //Stateless -> não guarda o estado da aplicação (padrão usado no REST)
-        //Stateful -> guarda o estado da aplicação
-        //https://medium.com/exactaworks/stateless-vs-stateful-f596a6b6471d
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
