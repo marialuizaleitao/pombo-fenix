@@ -97,6 +97,7 @@ public class UsuarioService implements UserDetailsService {
         Usuario usuario = usuarioRepository.findById(usuarioId).orElseThrow(() -> new PomboException("Usuário não encontrado.", HttpStatus.NOT_FOUND));
         String imagemBase64 = imagemService.processarImagem(foto);
         usuario.setFotoDePerfil(imagemBase64);
+        System.out.println(imagemBase64);
         usuarioRepository.save(usuario);
     }
 

@@ -114,16 +114,6 @@ public class PruuService {
             pruusFiltrados = new ArrayList<>(pruuRepository.findAll(seletor, Sort.by(Sort.Direction.DESC, "criadoEm")));
         }
 
-        if (seletor.isEuCurti()) {
-            Usuario subject = authService.getUsuarioAutenticado();
-
-            return pruusFiltrados.stream()
-                    .filter(pruu -> pruu.getUsuariosQueCurtiram() != null &&
-                            pruu.getUsuariosQueCurtiram().stream()
-                                    .anyMatch(usuario -> usuario.getId().equals(subject.getId())))
-                    .collect(Collectors.toList());
-        }
-
         pruusFiltrados = pruusFiltrados.stream()
                 .filter(pub -> !pub.isBloqueado())
                 .collect(Collectors.toList());
