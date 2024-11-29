@@ -74,12 +74,6 @@ public class UsuarioController {
         return usuarioService.pesquisarComFiltros(seletor);
     }
 
-    @Operation(summary = "Pesquisar os pruus curtidos pelo usuário", description = "Retorna uma lista de pruus que foram curtidos pelo usuário.")
-    @GetMapping("/meus-likes")
-    public List<Pruu> pesquisarPruusCurtidosPeloUsuario() throws PomboException {
-        return usuarioService.pesquisarPruusCurtidosPeloUsuario();
-    }
-
     @Operation(summary = "Obter o usuário autenticado", description = "Retorna o usuário autenticado.")
     @GetMapping("/usuario-autenticado")
     public ResponseEntity<Usuario> buscarUsuarioAutenticado() throws PomboException {

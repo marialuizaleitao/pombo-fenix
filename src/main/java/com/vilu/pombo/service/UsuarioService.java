@@ -101,15 +101,4 @@ public class UsuarioService implements UserDetailsService {
         usuarioRepository.save(usuario);
     }
 
-    public List<Pruu> pesquisarPruusCurtidosPeloUsuario() throws PomboException {
-        Usuario subject = authService.getUsuarioAutenticado();
-
-        Usuario usuario = usuarioRepository.findById(subject.getId()).orElseThrow(() -> new PomboException("Usuário não encontrado.", HttpStatus.BAD_REQUEST));
-
-        if (usuario.getPruus().isEmpty()) {
-            throw new PomboException("O usuário não possui pruus curtidos.", HttpStatus.NOT_FOUND);
-        }
-        return usuario.getPruus();
-    }
-
 }
