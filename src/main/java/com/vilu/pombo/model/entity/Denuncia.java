@@ -42,8 +42,12 @@ public class Denuncia {
     public static DenunciaDTO toDTO(Denuncia denuncia) {
         return new DenunciaDTO(
                 denuncia.getId(),
+                denuncia.getUsuario().getNome(),
                 denuncia.getPruu().getId(),
+                denuncia.getPruu().getTexto(),
+                denuncia.getPruu().getImagem(),
                 denuncia.getUsuario().getId(),
+                denuncia.getUsuario().getNome(),
                 denuncia.getMotivo(),
                 denuncia.getStatus(),
                 denuncia.getCriadoEm()

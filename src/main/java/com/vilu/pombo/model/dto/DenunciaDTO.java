@@ -12,8 +12,12 @@ import java.time.LocalDateTime;
 public class DenunciaDTO {
 
     private String id;
+    private String nomeDenunciante;
     private String pruuId;
+    private String textoPruu;
+    private String imagemPruu;
     private String usuarioId;
+    private String nomeUsuario;
     private Motivo motivo;
     private StatusDenuncia status;
     private LocalDateTime criadoEm;
