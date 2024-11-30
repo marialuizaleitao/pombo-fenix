@@ -47,7 +47,7 @@ public class Denuncia {
                 denuncia.getPruu().getTexto(),
                 denuncia.getPruu().getImagem(),
                 denuncia.getUsuario().getId(),
-                denuncia.getUsuario().getNome(),
+                denuncia.getPruu().getUsuario().getNome(),
                 denuncia.getMotivo(),
                 denuncia.getStatus(),
                 denuncia.getCriadoEm()
