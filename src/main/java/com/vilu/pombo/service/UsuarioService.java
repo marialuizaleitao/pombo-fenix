@@ -50,6 +50,18 @@ public class UsuarioService implements UserDetailsService {
         usuarioRepository.save(usuario);
     }
 
+    public void cadastrarAdmin(Usuario usuario) throws PomboException {
+        if (usuarioRepository.existsByEmailIgnoreCase(usuario.getEmail())) {
+            throw new PomboException("O e-mail informado já está cadastrado. Por favor, utilize um e-mail diferente.", HttpStatus.BAD_REQUEST);
+        }
+
+        if (usuarioRepository.existsByCpf(usuario.getCpf())) {
+            throw new PomboException("O CPF informado já está registrado. Por favor, verifique os dados ou utilize outro CPF.", HttpStatus.BAD_REQUEST);
+        }
+
+        usuarioRepository.save(usuario);
+    }
+
     public Usuario atualizar(Usuario usuarioASerAtualizado) throws PomboException {
         Usuario usuarioExistente = usuarioRepository.findById(usuarioASerAtualizado.getId()).orElseThrow(() -> new PomboException("Usuário não encontrado.", HttpStatus.NOT_FOUND));
 

@@ -3,6 +3,7 @@ package com.vilu.pombo.controller;
 import com.vilu.pombo.auth.AuthService;
 import com.vilu.pombo.exception.PomboException;
 import com.vilu.pombo.model.entity.Usuario;
+import com.vilu.pombo.model.enums.Perfil;
 import com.vilu.pombo.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -43,6 +44,16 @@ public class AuthController {
         String senhaCifrada = passwordEncoder.encode(novoUsuario.getSenha());
         novoUsuario.setSenha(senhaCifrada);
         usuarioService.cadastrar(novoUsuario);
+    }
+
+    @PostMapping("/novo-admin")
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public void cadastrarAdmin(@RequestBody Usuario novoUsuario) throws PomboException {
+        String senhaCifrada = passwordEncoder.encode(novoUsuario.getSenha());
+        novoUsuario.setSenha(senhaCifrada);
+        novoUsuario.setPerfil(Perfil.ADMINISTRADOR);
+
+        usuarioService.cadastrarAdmin(novoUsuario);
     }
 
 }
