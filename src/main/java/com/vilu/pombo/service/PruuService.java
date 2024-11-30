@@ -110,24 +110,15 @@ public class PruuService {
 			pruusFiltrados = new ArrayList<>(pruuRepository.findAll(seletor, Sort.by(Sort.Direction.DESC, "criadoEm")));
 		}
 
-		if (seletor.getIdUsuario() != null) {
-			Usuario subject = authService.getUsuarioAutenticado();
-
-			if (seletor.getIdUsuario().equals(subject.getId())) {
-				pruusFiltrados = pesquisarPruusCurtidosPeloUsuario(subject);
-			}
-		}
-
 		pruusFiltrados = pruusFiltrados.stream().filter(pub -> !pub.isBloqueado()).collect(Collectors.toList());
 
 		return pruusFiltrados;
 	}
 
-	private List<Pruu> pesquisarPruusCurtidosPeloUsuario(Usuario usuario) throws PomboException {
-		if (usuario.getPruus().isEmpty()) {
-			throw new PomboException("O usuário não possui pruus curtidos.", HttpStatus.NOT_FOUND);
-		}
-		return usuario.getPruus();
+	public List<Pruu> pesquisarPruusCurtidosPeloUsuario(String usuarioId) throws PomboException {
+		Usuario u = usuarioRepository.findById(usuarioId).orElseThrow(() -> new PomboException("Usuário não encontrado.", HttpStatus.BAD_REQUEST));
+
+		return pruuRepository.findPruusCurtidosPorUsuario(u.getId());
 	}
 
 	public void salvarImagem(MultipartFile foto, String pruuId, String usuarioId) throws PomboException {

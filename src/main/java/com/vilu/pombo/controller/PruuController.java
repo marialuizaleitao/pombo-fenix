@@ -103,4 +103,12 @@ public class PruuController {
         return pruuService.pesquisarUsuariosQueCurtiram(pruuId);
     }
 
+    @Operation(summary = "Pesquisar pruus que o usuário curtiu", description = "Retorna uma lista de pruus curtidos pelo usuário.", responses = {
+            @ApiResponse(responseCode = "200", description = "Pruus listados com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Pruu.class))),
+            @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content(mediaType = "application/json", schema = @Schema(description = "Detalhes do erro interno", example = "{\"message\": \"Erro interno do servidor\", \"status\": 500}")))})
+    @GetMapping("/meus-likes/{idUsuario}")
+    public List<Pruu> pesquisarPruusCurtidosPeloUsuario(@PathVariable String idUsuario) throws PomboException {
+        return pruuService.pesquisarPruusCurtidosPeloUsuario(idUsuario);
+    }
+
 }
