@@ -19,40 +19,36 @@ import com.vilu.pombo.model.repository.UsuarioRepository;
 
 @Service
 public class JwtService {
-	private final JwtEncoder jwtEncoder;
-	
-	@Autowired
-	private UsuarioRepository usuarioRepository;
+    private final JwtEncoder jwtEncoder;
 
-	public JwtService(JwtEncoder jwtEncoder) {
-		this.jwtEncoder = jwtEncoder;
-	}
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
-	public String getGenerateToken(Authentication authentication) throws PomboException {
-		Instant now = Instant.now();
-		long dezHorasEmSegundo = 36000L;
+    public JwtService(JwtEncoder jwtEncoder) {
+        this.jwtEncoder = jwtEncoder;
+    }
 
-		String roles = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority)
-				.collect(Collectors.joining(" "));
+    public String getGenerateToken(Authentication authentication) throws PomboException {
+        Instant now = Instant.now();
+        long dezHorasEmSegundo = 36000L;
 
-		Object principal = authentication.getPrincipal();
-		Usuario authenticatedUser;
+        String perfil = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(" "));
 
-		if (principal instanceof Jwt) {
-			Jwt jwt = (Jwt) principal;
-			String login = jwt.getSubject();
+        Object principal = authentication.getPrincipal();
+        Usuario authenticatedUser;
 
-			authenticatedUser = usuarioRepository.findByEmail(login)
-					.orElseThrow(() -> new PomboException("Usuário não encontrado.", HttpStatus.NOT_FOUND));
-		} else {
-			authenticatedUser = (Usuario) principal;
-		}
+        if (principal instanceof Jwt) {
+            Jwt jwt = (Jwt) principal;
+            String login = jwt.getSubject();
 
-		JwtClaimsSet claims = JwtClaimsSet.builder().issuer("pombo").issuedAt(now)
-				.expiresAt(now.plusSeconds(dezHorasEmSegundo)).subject(authentication.getName()).claim("roles", roles)
-				.claim("idUsuario", authenticatedUser.getId()).build();
+            authenticatedUser = usuarioRepository.findByEmail(login).orElseThrow(() -> new PomboException("Usuário não encontrado.", HttpStatus.NOT_FOUND));
+        } else {
+            authenticatedUser = (Usuario) principal;
+        }
 
-		return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
-	}
+        JwtClaimsSet claims = JwtClaimsSet.builder().issuer("pombo").issuedAt(now).expiresAt(now.plusSeconds(dezHorasEmSegundo)).subject(authentication.getName()).claim("perfil", perfil).claim("idUsuario", authenticatedUser.getId()).build();
+
+        return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+    }
 
 }
