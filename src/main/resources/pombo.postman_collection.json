@@ -7,39 +7,126 @@
 	},
 	"item": [
 		{
-			"name": "usuarios",
+			"name": "auth",
 			"item": [
 				{
-					"name": "cadastrar",
+					"name": "login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Test to validate the response schema and ensure the response contains the expected properties\r",
+									"pm.test(\"Validate the response schema for the presence of access_token, token_type, user_id, and isAdmin properties\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData.isAdmin).to.exist;\r",
+									"});\r",
+									"\r",
+									"// Test to check if the response contains a raw token (string without a key)\r",
+									"pm.test(\"Response contains a token and assign its value to the variable token\", function () {\r",
+									"    const rawToken = pm.response.text(); // Captura a resposta como texto puro\r",
+									"\r",
+									"    pm.expect(rawToken).to.be.a('string').that.is.not.empty;\r",
+									"\r",
+									"    // Definindo a variável do token no ambiente da coleção\r",
+									"    pm.collectionVariables.set(\"token\", rawToken);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": {
+								"password": "redbull",
+								"username": "max@verstappen.com"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"url": "{{BASE_URL}}:{{PORT}}/pombo/auth/login"
+					},
+					"response": []
+				},
+				{
+					"name": "cadastrar usuário",
 					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"nome\": \"Ayrton Senna\",\r\n  \"email\": \"ayrton@senna.com\",\r\n  \"cpf\": \"832.596.360-30\",\r\n  \"senha\": \"sennasempre\",\r\n  \"perfil\": \"USUARIO\",\r\n  \"isAdmin\": false,\r\n  \"fotoDePerfil\": \"https://quatrorodas.abril.com.br/wp-content/uploads/2024/04/ayrton-senna.jpg?crop=1&resize=1212,909\"\r\n}",
+							"raw": "{\r\n  \"nome\": \"Max Verstappen\",\r\n  \"email\": \"max@verstappen.com\",\r\n  \"cpf\": \"832.596.360-30\",\r\n  \"senha\": \"redbull\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": "http://localhost:8080/pombo/auth/novo"
+						"url": "{{BASE_URL}}:{{PORT}}/pombo/auth/novo"
 					},
 					"response": []
 				},
 				{
-					"name": "login",
+					"name": "cadastrar admin",
 					"request": {
-						"auth": {
-							"type": "basic",
-							"basic": {
-								"password": "sennasempre",
-								"username": "ayrton@senna.com"
-							}
-						},
 						"method": "POST",
 						"header": [],
-						"url": "http://localhost:8080/pombo/auth/login"
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"nome\": \"Ayrton Senna\",\r\n  \"email\": \"ayrton@gmail.com\",\r\n  \"cpf\": \"024.508.989-64\",\r\n  \"senha\": \"sennasempre\",\r\n  \"perfil\": \"ADMINISTRADOR\",\r\n  \"isAdmin\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASE_URL}}:{{PORT}}/pombo/auth/novo-admin"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "usuarios",
+			"item": [
+				{
+					"name": "salvar foto de perfil",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "fotoDePerfil",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": "{{BASE_URL}}:{{PORT}}/pombo/usuarios/salvar-foto"
 					},
 					"response": []
 				},
@@ -49,7 +136,7 @@
 						"auth": {
 							"type": "bearer",
 							"bearer": {
-								"token": "eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJwb21ibyIsInN1YiI6Im1heEB2ZXJzdGFwcGVuLmNvbSIsImV4cCI6MTczMjU0NjAyMiwiaWF0IjoxNzMyNTEwMDIyLCJyb2xlcyI6IlVTVUFSSU8iLCJpZFVzdWFyaW8iOiJlZGI1ODkwMy03MmJmLTQxNWItODY4MC0wM2QwMmM5ZWNkYjkifQ.msKVRwyVHdmy-rHgbCOmcNOYaHgoHS1PUWnYfUvfvQJp4GCzbdkS-dJsdLEzkPdpqvi_AFfCPfJOPEZzJeTJsEhvEWSfGsDFihyCI7q1CGlGCUPaR0HJsoEUhlNyB7ZSH97VOGQS8xhyXy-QaK9W31G_b1jFnY9wKsHOjiqqkmL5ztFDRApkhTxt8EOdyid1tWKYlM5jeNImCcNOsS079IHjI2stSSrtPaRFpUy9UBbzLBwUT4PTAAwF9qW15d69RP425XWp09Cr-CXhPXBEMPDGIAPxECXovw1myqiDMbHjlAV_k-WHQyJ8iBN_xDnw-t7TvMfOnlgXCMI0raxiWg"
+								"token": "{{token}}"
 							}
 						},
 						"method": "PUT",
@@ -62,14 +149,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"id\": \"1\",\r\n    \"nome\": \"Max Emilian Verstappen\",\r\n    \"email\": \"max@verstappen.com\",\r\n    \"cpf\": \"131.521.610-85\",\r\n    \"senha\": \"redbull\"\r\n}",
+							"raw": "{\r\n    \"id\": \"idUsuario\",\r\n    \"nome\": \"Max Emilian Verstappen\",\r\n    \"email\": \"max@verstappen.com\",\r\n    \"cpf\": \"832.596.360-30\",\r\n    \"senha\": \"redbull\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": "http://localhost:8080/pombo/usuarios/atualizar"
+						"url": "{{BASE_URL}}:{{PORT}}/pombo/usuarios/atualizar"
 					},
 					"response": []
 				},
@@ -79,7 +166,7 @@
 						"auth": {
 							"type": "bearer",
 							"bearer": {
-								"token": "eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJwb21ibyIsInN1YiI6ImF5cnRvbkBzZW5uYS5jb20iLCJleHAiOjE3MzI1NDcwNzIsImlhdCI6MTczMjUxMTA3Miwicm9sZXMiOiJVU1VBUklPIiwiaWRVc3VhcmlvIjoiZGJiM2QyYWMtMGMzNi00YjNjLTkyYjAtZWY1MDkzMjNmNjQ4In0.F1x7HdMsTf_LYVe1dubi_6TEbY0hrZXK-McI4_jrWtxANHy1H_FyTEOis_U7HlsBKT2ISm9rQeHAu28lt8SBjiSGnzYd9TfWUFvZPHI3rBxiRzKfIDYpeMzduWaAYXEdNeT4AAd8n9LucNrZQHJs5TUDLQfzO1KSjnkVMsqesBKeEVWmX074UggfhsrBxTZ0iXI152KgOjzP2XUMnslUYWw5C8e2bT2dk43O690E2yVPqZp7qmKjJ45fOcot1ablO5wurC-5s7myfF55JrkmECYc0vJ8Ffvh4axP8GL4kL7v0pi3MhxsYB4DPLxrFYTG-DFIMpmgxZOQXLNPNQ3N9w"
+								"token": "{{token}}"
 							}
 						},
 						"method": "DELETE",
@@ -90,7 +177,7 @@
 								"type": "text"
 							}
 						],
-						"url": "http://localhost:8080/pombo/usuarios/excluir/1"
+						"url": "{{BASE_URL}}:{{PORT}}/pombo/usuarios/excluir/idUsuario"
 					},
 					"response": []
 				},
@@ -100,7 +187,7 @@
 						"auth": {
 							"type": "bearer",
 							"bearer": {
-								"token": "eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJwb21ibyIsInN1YiI6ImF5cnRvbkBzZW5uYS5jb20iLCJleHAiOjE3MzI1NDc2MjYsImlhdCI6MTczMjUxMTYyNiwicm9sZXMiOiJVU1VBUklPIiwiaWRVc3VhcmlvIjoiMTQxOTA3YjQtZjhhYS00Y2I5LWE1YjAtYTJkMzYwNWZiYjg1In0.F3GwIWlHxRDlxsIpwy_yZMHzo59sw0cPtvfSsXg2n35JhlF_HhLhfg71_xieW7NxAbVi0OoCc2wRteAdVK3jj4j67J5c3M7L0Pg8RorhzDKocmNkTSD9fWZ31q2dAIFP3JbOrKwbJizMNcamNjGSYtOKpUh_c08h-CtfT6RO-jjf65mC-dsx-vnSfHKMRaeyWxKZB-AU-vldQE0g39m25wX48Jzypt4y78UOAkA66bpw9ku2cGpJTnmcy3l47emrZ4c3UHFO16bBuNHHl1F2UzNMqaFzbd0PGyQo-f3Ihw3WOuh5OgpBXtj8mC-96F52tzCwvtTcEUPQAhevlNOeAg"
+								"token": "{{token}}"
 							}
 						},
 						"method": "GET",
@@ -111,7 +198,7 @@
 								"type": "text"
 							}
 						],
-						"url": "http://localhost:8080/pombo/usuarios/todos"
+						"url": "{{BASE_URL}}:{{PORT}}/pombo/usuarios/todos"
 					},
 					"response": []
 				},
@@ -121,7 +208,7 @@
 						"auth": {
 							"type": "bearer",
 							"bearer": {
-								"token": "eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJwb21ibyIsInN1YiI6ImF5cnRvbkBzZW5uYS5jb20iLCJleHAiOjE3MzI1NDc2MjYsImlhdCI6MTczMjUxMTYyNiwicm9sZXMiOiJVU1VBUklPIiwiaWRVc3VhcmlvIjoiMTQxOTA3YjQtZjhhYS00Y2I5LWE1YjAtYTJkMzYwNWZiYjg1In0.F3GwIWlHxRDlxsIpwy_yZMHzo59sw0cPtvfSsXg2n35JhlF_HhLhfg71_xieW7NxAbVi0OoCc2wRteAdVK3jj4j67J5c3M7L0Pg8RorhzDKocmNkTSD9fWZ31q2dAIFP3JbOrKwbJizMNcamNjGSYtOKpUh_c08h-CtfT6RO-jjf65mC-dsx-vnSfHKMRaeyWxKZB-AU-vldQE0g39m25wX48Jzypt4y78UOAkA66bpw9ku2cGpJTnmcy3l47emrZ4c3UHFO16bBuNHHl1F2UzNMqaFzbd0PGyQo-f3Ihw3WOuh5OgpBXtj8mC-96F52tzCwvtTcEUPQAhevlNOeAg"
+								"token": "{{token}}"
 							}
 						},
 						"method": "GET",
@@ -132,7 +219,7 @@
 								"type": "text"
 							}
 						],
-						"url": "http://localhost:8080/pombo/usuarios/1"
+						"url": "{{BASE_URL}}:{{PORT}}/pombo/usuarios/idUsuario"
 					},
 					"response": []
 				},
@@ -142,7 +229,7 @@
 						"auth": {
 							"type": "bearer",
 							"bearer": {
-								"token": "eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJwb21ibyIsInN1YiI6Imxld2lzQGhhbWlsdG9uLmNvbSIsImV4cCI6MTczMjUzMjg5NiwiaWF0IjoxNzMyNDk2ODk2LCJyb2xlcyI6IlVTVUFSSU8iLCJpZFVzdWFyaW8iOiJlNzAxMzJkMC1iMjE2LTQ5ZjItODk0Zi1jNjEzZWJmMjk5MTAifQ.MXzXoeMJ-OEBQxw-P8N3a7stjbYgrhjJM3AC5u0fIPG_C38fjX1jjlHttpfbGe1-Fv87qCJNYrdEQtOwVngVMJZqrQUTMg_tLqKjos60ayvq_V9bLujj6kVdch_uOhJG1sFhIqpf_ji4f0qXx7YctB0FbB0DBM0lPy9LgBAyDb87gEDhPPCvJINTBAchADGGsQ07Vn6S4oF2tgJ4Ms-nFT2eFTQvoRS8rIFslqN7P9xaLOhLj4oxHEEod2kw53e4PZQoTOzenUZ5oc4hKM4GUGjZsdXsiB1PXNIg0sEMiIqm-vsuslP9M-d_RYr5yqipKeJHnZCteBNAKsXKMmHkjg"
+								"token": "{{token}}"
 							}
 						},
 						"method": "POST",
@@ -162,7 +249,28 @@
 								}
 							}
 						},
-						"url": "http://localhost:8080/pombo/usuarios/filtrar"
+						"url": "{{BASE_URL}}:{{PORT}}/pombo/usuarios/filtrar"
+					},
+					"response": []
+				},
+				{
+					"name": "obter usuario autenticado",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}:{{PORT}}/pombo/usuarios/usuario-autenticado"
 					},
 					"response": []
 				}
@@ -172,26 +280,57 @@
 			"name": "pruus",
 			"item": [
 				{
+					"name": "salvar foto",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "fotoDePerfil",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": "{{BASE_URL}}:{{PORT}}/pombo/pruus/salvar-foto"
+					},
+					"response": []
+				},
+				{
 					"name": "cadastrar",
 					"request": {
 						"auth": {
 							"type": "bearer",
 							"bearer": {
-								"token": "eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJwb21ibyIsInN1YiI6ImF5cnRvbkBzZW5uYS5jb20iLCJleHAiOjE3MzI1NDc2MjYsImlhdCI6MTczMjUxMTYyNiwicm9sZXMiOiJVU1VBUklPIiwiaWRVc3VhcmlvIjoiMTQxOTA3YjQtZjhhYS00Y2I5LWE1YjAtYTJkMzYwNWZiYjg1In0.F3GwIWlHxRDlxsIpwy_yZMHzo59sw0cPtvfSsXg2n35JhlF_HhLhfg71_xieW7NxAbVi0OoCc2wRteAdVK3jj4j67J5c3M7L0Pg8RorhzDKocmNkTSD9fWZ31q2dAIFP3JbOrKwbJizMNcamNjGSYtOKpUh_c08h-CtfT6RO-jjf65mC-dsx-vnSfHKMRaeyWxKZB-AU-vldQE0g39m25wX48Jzypt4y78UOAkA66bpw9ku2cGpJTnmcy3l47emrZ4c3UHFO16bBuNHHl1F2UzNMqaFzbd0PGyQo-f3Ihw3WOuh5OgpBXtj8mC-96F52tzCwvtTcEUPQAhevlNOeAg"
+								"token": "{{token}}"
 							}
 						},
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"usuario\": {\r\n    \"id\": \"1\"\r\n  },\r\n  \"texto\": \"Sou oficialmente tetracampeão da Fórmula 1!\",\r\n  \"imagem\": \"https://upload.wikimedia.org/wikipedia/commons/7/75/Max_Verstappen_2017_Malaysia_3.jpg\"\r\n}\r\n",
+							"raw": "{\r\n  \"usuario\": {\r\n    \"id\": \"idUsuario\"\r\n  },\r\n  \"texto\": \"Sou oficialmente tetracampeão da Fórmula 1!\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": "http://localhost:8080/pombo/pruus/cadastrar"
+						"url": "{{BASE_URL}}:{{PORT}}/pombo/pruus/cadastrar"
 					},
 					"response": []
 				},
@@ -201,21 +340,21 @@
 						"auth": {
 							"type": "bearer",
 							"bearer": {
-								"token": "eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJwb21ibyIsInN1YiI6Imxld2lzQGhhbWlsdG9uLmNvbSIsImV4cCI6MTczMjUwMzY0MiwiaWF0IjoxNzMyNDY3NjQyLCJyb2xlcyI6IlVTVUFSSU8iLCJpZFVzdWFyaW8iOiJkNzZhY2YzMS0zNDZmLTQxNzQtODdhNC0zYmJlYmIyNjhiYzIifQ.mlez82OMgrQ1H7THEAZ_N_cG29Eo9nGtixfUk_F7mWpTI96cxomndFN5qmadPvGt67DzCUCJoYUP_gNyEhYD3a-PMlHJ4OHRU8rV8M6Anqr2AXf8fNO2q_qKygKXF-eK24kNXzUYpLE4lCnZ0kii1pb-PeuIhkG1cZRdmip2uqFMrE1pmeXO-2QGQTfjpTvgvYO7webqhSt0yMPy-QPzPq24HR1L4RFmpoMvxikV9RM77azQyQuCUVdNKrtmD5a09olec9eqn40Dc3V2njFnNIf_BnuBYyAJL4hdh1P8WxsNd1vlqAF3s-qIddUZKkGdxBQ5ROFELwqwq_NhR0NsUQ"
+								"token": "{{token}}"
 							}
 						},
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"texto\": \"Início de temporada emocionante na Fórmula 1!\",\r\n    \"quantidadeLikes\": 15,\r\n    \"usuario\": {\r\n        \"uuid\": \"d76acf31-346f-4174-87a4-3bbebb268bc2\",\r\n      \"email\": \"lewis@hamilton.com\"\r\n    },\r\n    \"imagemEmBase64\": null,\r\n    \"bloqueado\": false\r\n  }",
+							"raw": "",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": "http://localhost:8080/pombo/pruus/curtir/idPruu/idUsuario/"
+						"url": "{{BASE_URL}}:{{PORT}}/pombo/pruus/curtir/idPruu"
 					},
 					"response": []
 				},
@@ -225,12 +364,12 @@
 						"auth": {
 							"type": "bearer",
 							"bearer": {
-								"token": "eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJwb21ibyIsInN1YiI6ImF5cnRvbkBzZW5uYS5jb20iLCJleHAiOjE3MzI1NDc2MjYsImlhdCI6MTczMjUxMTYyNiwicm9sZXMiOiJVU1VBUklPIiwiaWRVc3VhcmlvIjoiMTQxOTA3YjQtZjhhYS00Y2I5LWE1YjAtYTJkMzYwNWZiYjg1In0.F3GwIWlHxRDlxsIpwy_yZMHzo59sw0cPtvfSsXg2n35JhlF_HhLhfg71_xieW7NxAbVi0OoCc2wRteAdVK3jj4j67J5c3M7L0Pg8RorhzDKocmNkTSD9fWZ31q2dAIFP3JbOrKwbJizMNcamNjGSYtOKpUh_c08h-CtfT6RO-jjf65mC-dsx-vnSfHKMRaeyWxKZB-AU-vldQE0g39m25wX48Jzypt4y78UOAkA66bpw9ku2cGpJTnmcy3l47emrZ4c3UHFO16bBuNHHl1F2UzNMqaFzbd0PGyQo-f3Ihw3WOuh5OgpBXtj8mC-96F52tzCwvtTcEUPQAhevlNOeAg"
+								"token": "{{token}}"
 							}
 						},
 						"method": "DELETE",
 						"header": [],
-						"url": "http://localhost:8080/pombo/pruus/excluir/6/63"
+						"url": "{{BASE_URL}}:{{PORT}}/pombo/pruus/excluir/idPruu"
 					},
 					"response": []
 				},
@@ -243,7 +382,7 @@
 						"auth": {
 							"type": "bearer",
 							"bearer": {
-								"token": "eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJwb21ibyIsInN1YiI6ImF5cnRvbkBzZW5uYS5jb20iLCJleHAiOjE3MzI1NDc2MjYsImlhdCI6MTczMjUxMTYyNiwicm9sZXMiOiJVU1VBUklPIiwiaWRVc3VhcmlvIjoiMTQxOTA3YjQtZjhhYS00Y2I5LWE1YjAtYTJkMzYwNWZiYjg1In0.F3GwIWlHxRDlxsIpwy_yZMHzo59sw0cPtvfSsXg2n35JhlF_HhLhfg71_xieW7NxAbVi0OoCc2wRteAdVK3jj4j67J5c3M7L0Pg8RorhzDKocmNkTSD9fWZ31q2dAIFP3JbOrKwbJizMNcamNjGSYtOKpUh_c08h-CtfT6RO-jjf65mC-dsx-vnSfHKMRaeyWxKZB-AU-vldQE0g39m25wX48Jzypt4y78UOAkA66bpw9ku2cGpJTnmcy3l47emrZ4c3UHFO16bBuNHHl1F2UzNMqaFzbd0PGyQo-f3Ihw3WOuh5OgpBXtj8mC-96F52tzCwvtTcEUPQAhevlNOeAg"
+								"token": "{{token}}"
 							}
 						},
 						"method": "GET",
@@ -257,7 +396,7 @@
 								}
 							}
 						},
-						"url": "http://localhost:8080/pombo/pruus/todos"
+						"url": "{{BASE_URL}}:{{PORT}}/pombo/pruus/todos"
 					},
 					"response": []
 				},
@@ -267,12 +406,12 @@
 						"auth": {
 							"type": "bearer",
 							"bearer": {
-								"token": "eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJwb21ibyIsInN1YiI6ImF5cnRvbkBzZW5uYS5jb20iLCJleHAiOjE3MzI1NDc2MjYsImlhdCI6MTczMjUxMTYyNiwicm9sZXMiOiJVU1VBUklPIiwiaWRVc3VhcmlvIjoiMTQxOTA3YjQtZjhhYS00Y2I5LWE1YjAtYTJkMzYwNWZiYjg1In0.F3GwIWlHxRDlxsIpwy_yZMHzo59sw0cPtvfSsXg2n35JhlF_HhLhfg71_xieW7NxAbVi0OoCc2wRteAdVK3jj4j67J5c3M7L0Pg8RorhzDKocmNkTSD9fWZ31q2dAIFP3JbOrKwbJizMNcamNjGSYtOKpUh_c08h-CtfT6RO-jjf65mC-dsx-vnSfHKMRaeyWxKZB-AU-vldQE0g39m25wX48Jzypt4y78UOAkA66bpw9ku2cGpJTnmcy3l47emrZ4c3UHFO16bBuNHHl1F2UzNMqaFzbd0PGyQo-f3Ihw3WOuh5OgpBXtj8mC-96F52tzCwvtTcEUPQAhevlNOeAg"
+								"token": "{{token}}"
 							}
 						},
 						"method": "GET",
 						"header": [],
-						"url": "http://localhost:8080/pombo/pruus/1"
+						"url": "{{BASE_URL}}:{{PORT}}/pombo/pruus/idPruu"
 					},
 					"response": []
 				},
@@ -282,7 +421,7 @@
 						"auth": {
 							"type": "bearer",
 							"bearer": {
-								"token": "eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJwb21ibyIsInN1YiI6ImF5cnRvbkBzZW5uYS5jb20iLCJleHAiOjE3MzI1NDc2MjYsImlhdCI6MTczMjUxMTYyNiwicm9sZXMiOiJVU1VBUklPIiwiaWRVc3VhcmlvIjoiMTQxOTA3YjQtZjhhYS00Y2I5LWE1YjAtYTJkMzYwNWZiYjg1In0.F3GwIWlHxRDlxsIpwy_yZMHzo59sw0cPtvfSsXg2n35JhlF_HhLhfg71_xieW7NxAbVi0OoCc2wRteAdVK3jj4j67J5c3M7L0Pg8RorhzDKocmNkTSD9fWZ31q2dAIFP3JbOrKwbJizMNcamNjGSYtOKpUh_c08h-CtfT6RO-jjf65mC-dsx-vnSfHKMRaeyWxKZB-AU-vldQE0g39m25wX48Jzypt4y78UOAkA66bpw9ku2cGpJTnmcy3l47emrZ4c3UHFO16bBuNHHl1F2UzNMqaFzbd0PGyQo-f3Ihw3WOuh5OgpBXtj8mC-96F52tzCwvtTcEUPQAhevlNOeAg"
+								"token": "{{token}}"
 							}
 						},
 						"method": "POST",
@@ -296,7 +435,37 @@
 								}
 							}
 						},
-						"url": "http://localhost:8080/pombo/pruus/filtrar"
+						"url": "{{BASE_URL}}:{{PORT}}/pombo/pruus/filtrar"
+					},
+					"response": []
+				},
+				{
+					"name": "usuarios que curtiram",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "{{BASE_URL}}:{{PORT}}/pombo/pruus/usuarios-que-curtiram/idPruu"
+					},
+					"response": []
+				},
+				{
+					"name": "pruus curtidos do usuario",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "{{BASE_URL}}:{{PORT}}/pombo/pruus/meus-likes/idUsuario"
 					},
 					"response": []
 				}
@@ -311,21 +480,21 @@
 						"auth": {
 							"type": "bearer",
 							"bearer": {
-								"token": "eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJwb21ibyIsInN1YiI6ImF5cnRvbkBzZW5uYS5jb20iLCJleHAiOjE3MzI1NTA5MTIsImlhdCI6MTczMjUxNDkxMiwicm9sZXMiOiJVU1VBUklPIiwiaWRVc3VhcmlvIjoiMTQxOTA3YjQtZjhhYS00Y2I5LWE1YjAtYTJkMzYwNWZiYjg1In0.c3xnpGsBvMpQgq4HBn29WCUyJt3AGldHs1O06g3-jV_Tui_nKouDMXRFK2sVpG4KeBf0HvOnE7V4uGJEU3jUk8KPrOidwhoi0d6wWAhrN4W3kEg-H1c4CtLMaygn29WGjXwYKCSRAFzviR0wv5cCl8gifIXiq8JXKehF2a2LEHbA885-eSQM019cUFXfsW2wfivrgCdzJMjglxRkzNlmROlTCgMmYs2NMPZoG3Xorcfzcy6cGkOhFHPpfxZyhUNIthqZbIuHDXM_2oikKTHVxAjNV6sOvbHj9Xz84FK6HMUipqD1DD6W39v-EUVfwLbfmV6pH08hFpP5b8dUdHdiwA"
+								"token": "{{token}}"
 							}
 						},
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"usuario\": {\r\n    \"id\": \"1\"\r\n  },\r\n  \"pruu\": {\r\n    \"id\": \"1\"\r\n  },\r\n  \"status\": \"PENDENTE\",\r\n  \"motivo\": \"SPAM\"\r\n}\r\n",
+							"raw": "{\r\n  \"usuario\": {\r\n    \"id\": \"idUsuario\"\r\n  },\r\n  \"pruu\": {\r\n    \"id\": \"idPruu\"\r\n  },\r\n  \"status\": \"PENDENTE\",\r\n  \"motivo\": \"SPAM\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": "http://localhost:8080/pombo/denuncias/cadastrar"
+						"url": "{{BASE_URL}}:{{PORT}}/pombo/denuncias/cadastrar"
 					},
 					"response": []
 				},
@@ -335,7 +504,7 @@
 						"auth": {
 							"type": "bearer",
 							"bearer": {
-								"token": "eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJwb21ibyIsInN1YiI6ImF5cnRvbkBzZW5uYS5jb20iLCJleHAiOjE3MzI1NTYwMTEsImlhdCI6MTczMjUyMDAxMSwicm9sZXMiOiJVU1VBUklPIiwiaWRVc3VhcmlvIjoiMTQxOTA3YjQtZjhhYS00Y2I5LWE1YjAtYTJkMzYwNWZiYjg1In0.gwG-wH_vvUI1WfhTfWi8KVUrJOAeEcGtdiiSXoTdUZdh7egD-y-6GOHn4Yckrwvew41Kq1p-VGcci0aDTqVFUMeTUjc6YplGMJiiXF7kNY8eymHwRL1TUbBaCv9TBvo3iVyYJCsOVMnmFf6F6L4HGOJ9g9_a0uoWaC4g_Tb_3aEh4a0Aiam7Hr90LEstsibEIzJ77n0wwUR74LR_cghl6HtHe8g2xs8ENbQPqc9eQo_ydzBviRY4xDzLfQirL0fE_VG8dgoByJcXhiwypqpY9i_qOI2MCH61Ys5AlnxF_x7fHaAYYopl_F90oBh9zCkwX0XJgePuhWRwDLz5mH5WlQ"
+								"token": "{{token}}"
 							}
 						},
 						"method": "PUT",
@@ -348,14 +517,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"usuario\": {\r\n    \"id\": \"1\"\r\n  },\r\n  \"pruu\": {\r\n    \"id\": \"1\"\r\n  },\r\n  \"status\": \"PENDENTE\",\r\n  \"motivo\": \"DISCURSO_ODIO\"\r\n}",
+							"raw": "\"ACEITA\"",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": "http://localhost:8080/pombo/denuncias/atualizar/a85cae06-465c-4a8c-9c7e-ea6ff07812ba"
+						"url": "{{BASE_URL}}:{{PORT}}/pombo/denuncias/atualizar/idDenuncia"
 					},
 					"response": []
 				},
@@ -365,12 +534,27 @@
 						"auth": {
 							"type": "bearer",
 							"bearer": {
-								"token": "eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJwb21ibyIsInN1YiI6ImF5cnRvbkBzZW5uYS5jb20iLCJleHAiOjE3MzI1NDc2MjYsImlhdCI6MTczMjUxMTYyNiwicm9sZXMiOiJVU1VBUklPIiwiaWRVc3VhcmlvIjoiMTQxOTA3YjQtZjhhYS00Y2I5LWE1YjAtYTJkMzYwNWZiYjg1In0.F3GwIWlHxRDlxsIpwy_yZMHzo59sw0cPtvfSsXg2n35JhlF_HhLhfg71_xieW7NxAbVi0OoCc2wRteAdVK3jj4j67J5c3M7L0Pg8RorhzDKocmNkTSD9fWZ31q2dAIFP3JbOrKwbJizMNcamNjGSYtOKpUh_c08h-CtfT6RO-jjf65mC-dsx-vnSfHKMRaeyWxKZB-AU-vldQE0g39m25wX48Jzypt4y78UOAkA66bpw9ku2cGpJTnmcy3l47emrZ4c3UHFO16bBuNHHl1F2UzNMqaFzbd0PGyQo-f3Ihw3WOuh5OgpBXtj8mC-96F52tzCwvtTcEUPQAhevlNOeAg"
+								"token": "{{token}}"
 							}
 						},
 						"method": "DELETE",
 						"header": [],
-						"url": "http://localhost:8080/pombo/denuncias/excluir/2"
+						"url": "{{BASE_URL}}:{{PORT}}/pombo/denuncias/excluir/idDenuncia"
+					},
+					"response": []
+				},
+				{
+					"name": "pesquisar todas",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "{{BASE_URL}}:{{PORT}}/pombo/denuncias/todas"
 					},
 					"response": []
 				},
@@ -380,12 +564,12 @@
 						"auth": {
 							"type": "bearer",
 							"bearer": {
-								"token": "eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJwb21ibyIsInN1YiI6ImF5cnRvbkBzZW5uYS5jb20iLCJleHAiOjE3MzI1NDc2MjYsImlhdCI6MTczMjUxMTYyNiwicm9sZXMiOiJVU1VBUklPIiwiaWRVc3VhcmlvIjoiMTQxOTA3YjQtZjhhYS00Y2I5LWE1YjAtYTJkMzYwNWZiYjg1In0.F3GwIWlHxRDlxsIpwy_yZMHzo59sw0cPtvfSsXg2n35JhlF_HhLhfg71_xieW7NxAbVi0OoCc2wRteAdVK3jj4j67J5c3M7L0Pg8RorhzDKocmNkTSD9fWZ31q2dAIFP3JbOrKwbJizMNcamNjGSYtOKpUh_c08h-CtfT6RO-jjf65mC-dsx-vnSfHKMRaeyWxKZB-AU-vldQE0g39m25wX48Jzypt4y78UOAkA66bpw9ku2cGpJTnmcy3l47emrZ4c3UHFO16bBuNHHl1F2UzNMqaFzbd0PGyQo-f3Ihw3WOuh5OgpBXtj8mC-96F52tzCwvtTcEUPQAhevlNOeAg"
+								"token": "{{token}}"
 							}
 						},
 						"method": "GET",
 						"header": [],
-						"url": "http://localhost:8080/pombo/pruus/1"
+						"url": "{{BASE_URL}}:{{PORT}}/pombo/denuncias/idDenuncia"
 					},
 					"response": []
 				},
@@ -395,7 +579,7 @@
 						"auth": {
 							"type": "bearer",
 							"bearer": {
-								"token": "eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJwb21ibyIsInN1YiI6ImF5cnRvbkBzZW5uYS5jb20iLCJleHAiOjE3MzI1NDc2MjYsImlhdCI6MTczMjUxMTYyNiwicm9sZXMiOiJVU1VBUklPIiwiaWRVc3VhcmlvIjoiMTQxOTA3YjQtZjhhYS00Y2I5LWE1YjAtYTJkMzYwNWZiYjg1In0.F3GwIWlHxRDlxsIpwy_yZMHzo59sw0cPtvfSsXg2n35JhlF_HhLhfg71_xieW7NxAbVi0OoCc2wRteAdVK3jj4j67J5c3M7L0Pg8RorhzDKocmNkTSD9fWZ31q2dAIFP3JbOrKwbJizMNcamNjGSYtOKpUh_c08h-CtfT6RO-jjf65mC-dsx-vnSfHKMRaeyWxKZB-AU-vldQE0g39m25wX48Jzypt4y78UOAkA66bpw9ku2cGpJTnmcy3l47emrZ4c3UHFO16bBuNHHl1F2UzNMqaFzbd0PGyQo-f3Ihw3WOuh5OgpBXtj8mC-96F52tzCwvtTcEUPQAhevlNOeAg"
+								"token": "{{token}}"
 							}
 						},
 						"method": "POST",
@@ -409,11 +593,49 @@
 								}
 							}
 						},
-						"url": "http://localhost:8080/pombo/pruus/filtrar"
+						"url": "{{BASE_URL}}:{{PORT}}/pombo/pruus/filtrar"
 					},
 					"response": []
 				}
 			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "BASE_URL",
+			"value": "http://localhost",
+			"type": "string"
+		},
+		{
+			"key": "PORT",
+			"value": "8080",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": ""
 		}
 	]
 }
