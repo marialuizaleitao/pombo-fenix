@@ -16,10 +16,7 @@ public class UsuarioMockFactory {
         Mockito.when(usuarioMock.getEmail()).thenReturn("fernando@alonso.com");
         Mockito.when(usuarioMock.getCpf()).thenReturn("158.534.520-29");
         Mockito.when(usuarioMock.getSenha()).thenReturn("senha");
-        Mockito.when(usuarioMock.getFotoDePerfil()).thenReturn("http://example.com/foto.jpg");
-        Mockito.when(usuarioMock.getPerfil()).thenReturn(Perfil.USUARIO);
         Mockito.when(usuarioMock.isAdmin()).thenReturn(false);
-        Mockito.when(usuarioMock.getCriadoEm()).thenReturn(LocalDateTime.now());
 
         return usuarioMock;
     }
