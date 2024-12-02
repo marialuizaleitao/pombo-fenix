@@ -3,6 +3,7 @@ package com.vilu.pombo.model.repository;
 import com.vilu.pombo.model.entity.Pruu;
 import com.vilu.pombo.model.mock.PruuMockFactory;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -32,6 +33,7 @@ public class PruuRepositoryTest {
     // Casos de teste para findPruusCurtidosPorUsuario
     // Caso de sucesso
     @Test
+    @DisplayName("Should be able to find posts liked by user")
     public void testFindPruusCurtidosPorUsuario_Success() {
         when(mockPruuRepository.findPruusCurtidosPorUsuario("12345-usuario-id"))
                 .thenReturn(List.of(pruu));
@@ -45,6 +47,7 @@ public class PruuRepositoryTest {
 
     // Caso de erro
     @Test
+    @DisplayName("Should not be able to find any posts liked by user")
     public void testFindPruusCurtidosPorUsuario_Failure() {
         when(mockPruuRepository.findPruusCurtidosPorUsuario("67890-usuario-id"))
                 .thenReturn(List.of());

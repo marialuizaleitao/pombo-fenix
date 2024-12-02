@@ -3,6 +3,7 @@ package com.vilu.pombo.model.repository;
 import com.vilu.pombo.model.entity.Usuario;
 import com.vilu.pombo.model.mock.UsuarioMockFactory;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -32,6 +33,7 @@ public class UsuarioRepositoryTest {
     // Casos de teste para existsByEmailIgnoreCase
     // Caso de sucesso
     @Test
+    @DisplayName("Should be able to confirm that the informed email is already being used")
     public void testExistsByEmailIgnoreCase_Success() {
         when(mockUsuarioRepository.existsByEmailIgnoreCase("fernando@alonso.com")).thenReturn(true);
         boolean exists = usuarioRepository.existsByEmailIgnoreCase("fernando@alonso.com");
@@ -39,6 +41,7 @@ public class UsuarioRepositoryTest {
     }
 
     // Caso de erro
+    @DisplayName("Should not be able to find said email in the database")
     @Test
     public void testExistsByEmailIgnoreCase_Failure() {
         when(mockUsuarioRepository.existsByEmailIgnoreCase("naoexistente@exemplo.com")).thenReturn(false);
@@ -49,6 +52,7 @@ public class UsuarioRepositoryTest {
     // Casos de teste para findByEmail
     // Caso de sucesso
     @Test
+    @DisplayName("Should be able to find user by email")
     public void testFindByEmail_Success() {
         when(mockUsuarioRepository.findByEmail("fernando@alonso.com")).thenReturn(Optional.of(usuario));
         Optional<Usuario> result = usuarioRepository.findByEmail("fernando@alonso.com");
@@ -58,6 +62,7 @@ public class UsuarioRepositoryTest {
 
     // Caso de erro
     @Test
+    @DisplayName("Should not be able to find user by email")
     public void testFindByEmail_Failure() {
         when(mockUsuarioRepository.findByEmail("naoexistente@exemplo.com")).thenReturn(Optional.empty());
         Optional<Usuario> result = usuarioRepository.findByEmail("naoexistente@exemplo.com");
@@ -67,6 +72,7 @@ public class UsuarioRepositoryTest {
     // Casos de teste para existsByCpf
     // Caso de sucesso
     @Test
+    @DisplayName("Should be able to confirm that the informed cpf is already being used")
     public void testExistsByCpf_Success() {
         when(mockUsuarioRepository.existsByCpf("158.534.520-29")).thenReturn(true);
         boolean exists = usuarioRepository.existsByCpf("158.534.520-29");
@@ -75,6 +81,7 @@ public class UsuarioRepositoryTest {
 
     // Caso de erro
     @Test
+    @DisplayName("Should not be able to find said cpf in the database")
     public void testExistsByCpf_Failure() {
         when(mockUsuarioRepository.existsByCpf("987.654.321-00")).thenReturn(false);
         boolean exists = usuarioRepository.existsByCpf("987.654.321-00");
@@ -84,6 +91,7 @@ public class UsuarioRepositoryTest {
     // Casos de teste para findById
     // Caso de sucesso
     @Test
+    @DisplayName("Should be able to find user by its ID")
     public void testFindById_Success() {
         when(mockUsuarioRepository.findById("12345-uuid")).thenReturn(Optional.of(usuario));
         Optional<Usuario> result = usuarioRepository.findById("12345-uuid");
@@ -93,6 +101,7 @@ public class UsuarioRepositoryTest {
 
     // Caso de erro
     @Test
+    @DisplayName("Should not be able to find user by a fake ID")
     public void testFindById_Failure() {
         when(mockUsuarioRepository.findById("67890-uuid")).thenReturn(Optional.empty());
         Optional<Usuario> result = usuarioRepository.findById("67890-uuid");
