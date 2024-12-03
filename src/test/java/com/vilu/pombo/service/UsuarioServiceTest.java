@@ -380,8 +380,8 @@ public class UsuarioServiceTest {
 //    }
     
     // Caso de erro: usuários não encontrados
-    @Test
-    @DisplayName("Should not be able to find users with the selected filters")
+//    @Test
+//    @DisplayName("Should not be able to find users with the selected filters")
     
 //    // Casos de teste para salvarFotoDePerfil
 //    // Caso de sucesso

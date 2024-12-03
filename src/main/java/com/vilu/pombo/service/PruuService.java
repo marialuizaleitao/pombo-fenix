@@ -3,9 +3,9 @@ package com.vilu.pombo.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -99,18 +99,17 @@ public class PruuService {
 
 	public List<Pruu> pesquisarComFiltros(PruuSeletor seletor) throws PomboException {
 		List<Pruu> pruusFiltrados;
+		seletor.setBloqueado(false);
 
 		if (seletor.temPaginacao()) {
 			int pageNumber = seletor.getPagina();
 			int pageSize = seletor.getLimite();
 
 			PageRequest page = PageRequest.of(pageNumber - 1, pageSize, Sort.by(Sort.Direction.DESC, "criadoEm"));
-			pruusFiltrados = new ArrayList<>(pruuRepository.findAll(seletor, page).toList());
+			pruusFiltrados = new ArrayList<Pruu>(pruuRepository.findAll(seletor, page).toList());
 		} else {
-			pruusFiltrados = new ArrayList<>(pruuRepository.findAll(seletor, Sort.by(Sort.Direction.DESC, "criadoEm")));
+			pruusFiltrados = new ArrayList<Pruu>(pruuRepository.findAll(seletor, Sort.by(Sort.Direction.DESC, "criadoEm")));
 		}
-
-		pruusFiltrados = pruusFiltrados.stream().filter(pub -> !pub.isBloqueado()).collect(Collectors.toList());
 
 		return pruusFiltrados;
 	}
@@ -138,6 +137,20 @@ public class PruuService {
 		Pruu pruu = pruuRepository.findById(pruuId)
 				.orElseThrow(() -> new PomboException("Pruu não encontrado.", HttpStatus.NOT_FOUND));
 		return pruu.getUsuariosQueCurtiram();
+	}
+	
+	public int contarPaginas(PruuSeletor seletor) {
+	    if (seletor != null && seletor.temPaginacao()) {
+	        int pageSize = seletor.getLimite();
+	        PageRequest pagina = PageRequest.of(0, pageSize); // Página inicial apenas para contar
+
+	        Page<Pruu> paginaResultado = pruuRepository.findAll(seletor, pagina);
+	        return paginaResultado.getTotalPages(); // Retorna o número total de páginas
+	    }
+
+	    // Se não houver paginação, retorna 1 página se houver registros, ou 0 se não houver registros.
+	    long totalRegistros = pruuRepository.count(seletor);
+	    return totalRegistros > 0 ? 1 : 0;
 	}
 
 }

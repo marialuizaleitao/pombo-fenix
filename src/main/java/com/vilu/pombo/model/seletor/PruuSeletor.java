@@ -21,11 +21,16 @@ public class PruuSeletor extends BaseSeletor implements Specification<Pruu> {
 	private String texto;
 	private LocalDateTime criadoEmInicio;
 	private LocalDateTime criadoEmFim;
-
+	private Boolean bloqueado;
+	
 	@Override
 	public Predicate toPredicate(Root<Pruu> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 		List<Predicate> predicates = new ArrayList<>();
 
+		if (this.getBloqueado() != null) {
+			predicates.add(cb.equal(root.get("bloqueado"), this.getBloqueado()));
+		}
+		
 		if (this.getTexto() != null && !this.getTexto().trim().isEmpty()) {
 			predicates.add(cb.like(root.get("texto"), "%" + this.getTexto() + "%"));
 		}

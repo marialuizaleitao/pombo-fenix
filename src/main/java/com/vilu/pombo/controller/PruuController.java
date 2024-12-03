@@ -110,5 +110,10 @@ public class PruuController {
     public List<Pruu> pesquisarPruusCurtidosPeloUsuario(@PathVariable String idUsuario) throws PomboException {
         return pruuService.pesquisarPruusCurtidosPeloUsuario(idUsuario);
     }
+    
+    @Operation(summary = "Contador de páginas", description = "Retorna uma contagem com o número total de páginas.")    @PostMapping("/total-paginas")
+	public int contarPaginas(@RequestBody PruuSeletor seletor) {
+		return this.pruuService.contarPaginas(seletor);
+	}
 
 }
