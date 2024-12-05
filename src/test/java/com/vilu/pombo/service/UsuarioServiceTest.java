@@ -1,9 +1,6 @@
 package com.vilu.pombo.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
@@ -13,16 +10,24 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.vilu.pombo.model.enums.Perfil;
+import com.vilu.pombo.model.mock.UsuarioMockFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
@@ -30,11 +35,12 @@ import com.vilu.pombo.exception.PomboException;
 import com.vilu.pombo.model.entity.Usuario;
 import com.vilu.pombo.model.repository.UsuarioRepository;
 import com.vilu.pombo.model.seletor.UsuarioSeletor;
+import org.springframework.web.multipart.MultipartFile;
 
 @DataJpaTest
 public class UsuarioServiceTest {
-	
-	@Mock
+
+    @Mock
     private UsuarioRepository usuarioRepository;
 
     @InjectMocks
@@ -42,9 +48,9 @@ public class UsuarioServiceTest {
 
     @AfterEach
     public void tearDown() {
-    	usuarioRepository.deleteAll();
+        usuarioRepository.deleteAll();
     }
-    
+
     // Casos de teste para loadUserByUsername
     // Caso de sucesso
     @Test
@@ -62,7 +68,7 @@ public class UsuarioServiceTest {
         verify(usuarioRepository, times(1)).findByEmail(username);
     }
 
-    
+
     // Caso de erro
     @Test
     @DisplayName("Should not be able to return a UserDetails when user email is not found")
@@ -71,8 +77,8 @@ public class UsuarioServiceTest {
         when(usuarioRepository.findByEmail(username)).thenReturn(Optional.empty());
 
         UsernameNotFoundException exception = assertThrows(
-            UsernameNotFoundException.class,
-            () -> usuarioService.loadUserByUsername(username)
+                UsernameNotFoundException.class,
+                () -> usuarioService.loadUserByUsername(username)
         );
 
         assertEquals("Usuário não encontrado " + username, exception.getMessage());
@@ -97,7 +103,7 @@ public class UsuarioServiceTest {
         verify(usuarioRepository, times(1)).existsByCpf(usuario.getCpf());
         verify(usuarioRepository, times(1)).save(usuario);
     }
-    
+
     // Caso de erro: email cadastrado já existe
     @Test
     @DisplayName("Should not be able to register a user with a used email")
@@ -109,8 +115,8 @@ public class UsuarioServiceTest {
         when(usuarioRepository.existsByEmailIgnoreCase(usuario.getEmail())).thenReturn(true);
 
         PomboException exception = assertThrows(
-            PomboException.class,
-            () -> usuarioService.cadastrar(usuario)
+                PomboException.class,
+                () -> usuarioService.cadastrar(usuario)
         );
 
         assertEquals("O e-mail informado já está cadastrado. Por favor, utilize um e-mail diferente.", exception.getMessage());
@@ -119,7 +125,7 @@ public class UsuarioServiceTest {
         verify(usuarioRepository, never()).save(any());
     }
 
-    
+
     // Caso de erro: CPF cadastrado já existe
     @Test
     @DisplayName("Should not be able to register a user with a used CPF")
@@ -133,16 +139,16 @@ public class UsuarioServiceTest {
 
         // Act & Assert
         PomboException exception = assertThrows(
-            PomboException.class,
-            () -> usuarioService.cadastrar(usuario)
+                PomboException.class,
+                () -> usuarioService.cadastrar(usuario)
         );
 
         assertEquals("O CPF informado já está registrado. Por favor, verifique os dados ou utilize outro CPF.", exception.getMessage());
         verify(usuarioRepository, times(1)).existsByEmailIgnoreCase(usuario.getEmail());
         verify(usuarioRepository, times(1)).existsByCpf(usuario.getCpf());
         verify(usuarioRepository, never()).save(any());
-    } 
-    
+    }
+
     // Casos de teste para cadastrarAdmin
     // Caso de sucesso
     @Test
@@ -162,7 +168,7 @@ public class UsuarioServiceTest {
         verify(usuarioRepository, times(1)).save(usuario);
     }
 
-    
+
     // Caso de erro: email cadastrado já existe
     @Test
     @DisplayName("Should not be able to register admin with a used email")
@@ -174,8 +180,8 @@ public class UsuarioServiceTest {
         when(usuarioRepository.existsByEmailIgnoreCase(usuario.getEmail())).thenReturn(true);
 
         PomboException exception = assertThrows(
-            PomboException.class,
-            () -> usuarioService.cadastrarAdmin(usuario)
+                PomboException.class,
+                () -> usuarioService.cadastrarAdmin(usuario)
         );
 
         assertEquals("O e-mail informado já está cadastrado. Por favor, utilize um e-mail diferente.", exception.getMessage());
@@ -184,7 +190,7 @@ public class UsuarioServiceTest {
         verify(usuarioRepository, never()).save(any());
     }
 
-    
+
     // Caso de erro: CPF cadastrado já existe
     @Test
     @DisplayName("Should not be able to register admin with a used CPF")
@@ -197,8 +203,8 @@ public class UsuarioServiceTest {
         when(usuarioRepository.existsByCpf(usuario.getCpf())).thenReturn(true);
 
         PomboException exception = assertThrows(
-            PomboException.class,
-            () -> usuarioService.cadastrarAdmin(usuario)
+                PomboException.class,
+                () -> usuarioService.cadastrarAdmin(usuario)
         );
 
         assertEquals("O CPF informado já está registrado. Por favor, verifique os dados ou utilize outro CPF.", exception.getMessage());
@@ -206,7 +212,7 @@ public class UsuarioServiceTest {
         verify(usuarioRepository, times(1)).existsByCpf(usuario.getCpf());
         verify(usuarioRepository, never()).save(any());
     }
-    
+
     // Casos de teste para atualizar
     // Caso de sucesso
     @Test
@@ -232,7 +238,7 @@ public class UsuarioServiceTest {
         verify(usuarioRepository, times(1)).findById(usuarioAtualizado.getId());
         verify(usuarioRepository, times(1)).save(usuarioExistente);
     }
-    
+
     // Caso de erro: usuário não encontrado
     @Test
     @DisplayName("Should not be able to update a nonexistent user")
@@ -245,15 +251,15 @@ public class UsuarioServiceTest {
         when(usuarioRepository.findById(usuarioAtualizado.getId())).thenReturn(Optional.empty());
 
         PomboException exception = assertThrows(
-            PomboException.class,
-            () -> usuarioService.atualizar(usuarioAtualizado)
+                PomboException.class,
+                () -> usuarioService.atualizar(usuarioAtualizado)
         );
 
         assertEquals("Usuário não encontrado.", exception.getMessage());
         verify(usuarioRepository, times(1)).findById(usuarioAtualizado.getId());
         verify(usuarioRepository, never()).save(any());
     }
-    
+
     // Casos de teste para excluir
     // Caso de sucesso
 //    @Test
@@ -270,16 +276,16 @@ public class UsuarioServiceTest {
     @Test
     @DisplayName("Should be able to return a list with users")
     void testPesquisarTodos_Success() {
-    	Usuario vic = new Usuario();
-    	vic.setId("1");
-    	vic.setNome("Vic");
-    	vic.setEmail("vic@email.com");
-    	
-    	Usuario malu = new Usuario();
-    	malu.setId("2");
-    	malu.setNome("Malu");
-    	malu.setEmail("malu@email.com");
-    	
+        Usuario vic = new Usuario();
+        vic.setId("1");
+        vic.setNome("Vic");
+        vic.setEmail("vic@email.com");
+
+        Usuario malu = new Usuario();
+        malu.setId("2");
+        malu.setNome("Malu");
+        malu.setEmail("malu@email.com");
+
         List<Usuario> usuarios = new ArrayList<>();
         usuarios.add(vic);
         usuarios.add(malu);
@@ -294,12 +300,12 @@ public class UsuarioServiceTest {
         assertEquals("Malu", result.get(1).getNome());
         verify(usuarioRepository, times(1)).findAll();
     }
-    
+
     // Caso de erro: usuários não encontrados
     @Test
     @DisplayName("Should not be able to find users")
     void testPesquisarTodos_NoUsersFound() {
-        List<Usuario> usuarios = new ArrayList<>(); 
+        List<Usuario> usuarios = new ArrayList<>();
 
         when(usuarioRepository.findAll()).thenReturn(usuarios);
 
@@ -331,7 +337,7 @@ public class UsuarioServiceTest {
         assertEquals("ayrton@senna.com", result.getEmail());
         verify(usuarioRepository, times(1)).findById(id);
     }
-    
+
     // Caso de erro: usuário não encontrado
     @Test
     @DisplayName("Should not be able to find a nonexistent user")
@@ -347,50 +353,43 @@ public class UsuarioServiceTest {
 
     // Casos de teste para pesquisarComFiltros
     // Caso de sucesso
-//    @Test
-//    @DisplayName("Should be able to return a list with filtered users")
-//    void testPesquisarComFiltros_Success_WithPagination() {
-//        UsuarioSeletor seletor = mock(UsuarioSeletor.class);
-//        when(seletor.temPaginacao()).thenReturn(true);
-//        when(seletor.getPagina()).thenReturn(1);
-//        when(seletor.getLimite()).thenReturn(10);
-//
-//        Usuario vic = new Usuario();
-//    	vic.setId("1");
-//    	vic.setNome("Vic");
-//    	vic.setEmail("vic@email.com");
-//    	
-//    	Usuario malu = new Usuario();
-//    	malu.setId("2");
-//    	malu.setNome("Malu");
-//    	malu.setEmail("malu@email.com");
-//    	
-//        List<Usuario> usuarios = List.of(vic, malu);
-//
-//        Page<Usuario> page = new PageImpl<>(usuarios);
-//        when(usuarioRepository.findAll(seletor, PageRequest.of(0, 10))).thenReturn(page);
-//
-//        List<Usuario> result = usuarioService.pesquisarComFiltros(seletor);
-//
-//        assertNotNull(result);
-//        assertEquals(2, result.size());
-//        assertEquals("João", result.get(0).getNome());
-//        assertEquals("Maria", result.get(1).getNome());
-//        verify(usuarioRepository, times(1)).findAll(seletor, PageRequest.of(0, 10));
-//    }
-    
-    // Caso de erro: usuários não encontrados
-//    @Test
-//    @DisplayName("Should not be able to find users with the selected filters")
-    
-//    // Casos de teste para salvarFotoDePerfil
-//    // Caso de sucesso
-//    @Test
-//    @DisplayName("Should be able to save user profile picture")
-//    
-//    // Caso de erro
-//    @Test
-//    @DisplayName("Should not be able to process image")
-    
+    @Test
+    @DisplayName("Should be able to return a list with filtered users")
+    public void testPesquisarComFiltros_ShouldReturnFilteredUsers() {
+        UsuarioSeletor seletor = new UsuarioSeletor();
+        seletor.setNome("Fernando");
+        seletor.setEmail("fernando.alonso@example.com");
 
+        List<Usuario> usuariosMock = List.of(
+                UsuarioMockFactory.criarUsuarioMock()
+        );
+
+        Mockito.when(usuarioRepository.findAll(Mockito.eq(seletor))).thenReturn(usuariosMock);
+
+        List<Usuario> resultado = usuarioService.pesquisarComFiltros(seletor);
+
+        assertNotNull(resultado);
+        assertFalse(resultado.isEmpty());
+        assertEquals(1, resultado.size());
+        assertEquals("Fernando Alonso", resultado.get(0).getNome());
+        assertEquals("fernando@alonso.com", resultado.get(0).getEmail());
+    }
+
+    // Caso de erro: usuários não encontrados
+    @Test
+    @DisplayName("Should not be able to find users with the selected filters")
+    public void testPesquisarComFiltros_ShouldNotReturnFilteredUsers() {
+        UsuarioSeletor seletor = new UsuarioSeletor();
+        seletor.setNome("Usuário Inexistente");
+        seletor.setEmail("inexistente@example.com");
+
+        List<Usuario> usuariosVazios = new ArrayList<>();
+
+        Mockito.when(usuarioRepository.findAll(Mockito.eq(seletor))).thenReturn(usuariosVazios);
+
+        List<Usuario> resultado = usuarioService.pesquisarComFiltros(seletor);
+
+        assertNotNull(resultado);
+        assertTrue(resultado.isEmpty());
+    }
 }
