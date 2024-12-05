@@ -4,8 +4,6 @@ import com.vilu.pombo.model.entity.Usuario;
 import com.vilu.pombo.model.enums.Perfil;
 import org.mockito.Mockito;
 
-import java.time.LocalDateTime;
-
 public class UsuarioMockFactory {
 
     public static Usuario criarUsuarioMock() {
