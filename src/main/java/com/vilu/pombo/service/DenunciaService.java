@@ -90,7 +90,7 @@ public class DenunciaService {
         return toDenunciaDTO(denuncias);
     }
 
-    private void atualizarStatusPruu(Pruu pruu, StatusDenuncia statusAtual, StatusDenuncia novoStatus) {
+    void atualizarStatusPruu(Pruu pruu, StatusDenuncia statusAtual, StatusDenuncia novoStatus) {
         if (novoStatus == StatusDenuncia.ACEITA) {
             pruu.setBloqueado(true);
         } else if (statusAtual == StatusDenuncia.ACEITA && (novoStatus == StatusDenuncia.REJEITADA || novoStatus == StatusDenuncia.PENDENTE)) {

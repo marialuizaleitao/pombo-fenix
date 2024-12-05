@@ -80,7 +80,6 @@ public class PruuServiceTest {
     @Test
     @DisplayName("Deve lançar PomboException se o usuário não for encontrado ao postar um Pruu")
     public void deveLancarExcecaoUsuarioNaoEncontradoAoCadastrar() {
-        // Arrange
         Pruu pruu = new Pruu();
         Usuario usuario = new Usuario();
         usuario.setId("usuario-invalido");
